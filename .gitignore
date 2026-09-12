@@ -29,3 +29,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# SQLite runtime files
+arthix.db
+arthix.db-shm
+arthix.db-wal

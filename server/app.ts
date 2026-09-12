@@ -7,7 +7,7 @@ import { evaluateVivekDecision } from "../lib/services/vivek";
 import { getSaharaWellness, applySaharaRelief } from "../lib/services/sahara";
 import { getKavachConsents, toggleKavachConsent, getKavachAlerts, confirmKavachFraudEvent } from "../lib/services/kavach";
 import { processBhashaSahayakTurn } from "../lib/services/bhashasahayak";
-import { getNyayAuditTrail, logNyayEvent } from "../lib/services/nyay";
+import { getNyayAuditTrail, logNyayEvent, evaluateNyayGuardrails } from "../lib/services/nyay";
 
 export const app = express();
 
@@ -104,22 +104,30 @@ router.get("/recommendations", (req: Request, res: Response) => {
 
   const decision = evaluateVivekDecision(profile.userId);
   const candidates = evaluateJeevanChakraCandidates(profile);
+  const nyay = evaluateNyayGuardrails(profile.userId, decision);
 
   return res.json({
-    action: decision.action,
+    action: nyay.decision,
+    decision: nyay.decision,
+    reasonCodes: nyay.reasonCodes,
+    timestamp: nyay.timestamp,
+    consentState: nyay.consentState,
+    stressBand: nyay.stressBand,
     headline: decision.headline,
     subline: decision.subline,
     confidence: decision.confidence,
-    ruleCode: decision.ruleCode,
+    ruleCode: nyay.reasonCodes[0] || decision.ruleCode,
     citation: decision.citation,
     metrics: decision.metrics,
+    mathParameters: nyay.mathParameters,
     explanationEn: decision.explanationEn,
     explanationHi: decision.explanationHi,
     explanationGu: decision.explanationGu,
     items: candidates,
     candidates,
     candidateProduct: decision.candidateProduct,
-    reasons: [decision.ruleCode],
+    reasons: nyay.reasonCodes,
+    auditId: nyay.auditId,
   });
 });
 

@@ -8,10 +8,23 @@ import {
 import { evaluateJeevanChakraCandidates } from "../lib/services/jeevanchakra";
 import { evaluateVivekDecision, evaluateVivekDecisionPipeline } from "../lib/services/vivek";
 import { calculateSaharaStress } from "../lib/services/sahara";
+import {
+  evaluateNyayGuardrails,
+  getUserConsentState,
+} from "../lib/services/nyay";
+import {
+  analyzeTransactionAnomaly,
+  confirmKavachFraudEvent,
+  toggleKavachConsent,
+} from "../lib/services/kavach";
+import { db } from "../lib/db";
 
 console.log("\n=======================================================");
 console.log("   ARTHIX: ARTHBODH & JEEVANCHAKRA VERIFICATION SUITE  ");
 console.log("=======================================================\n");
+
+// Ensure baseline consent state for seed users
+db.prepare("UPDATE consent_records SET status = 'AUTHORIZED' WHERE id = 'c-1'").run();
 
 let passedCount = 0;
 let totalCount = 0;
@@ -898,6 +911,294 @@ it("MOST IMPORTANT TEST - Kamala: missed EMI + declining surplus + high stress �
   // Confirm aggressive credit is strictly suppressed
   assert.ok(decision.suppressedProducts && decision.suppressedProducts.length > 0);
   assert.ok(decision.suppressedProducts.some((p) => p.name.includes("36% APR")));
+});
+
+// ─────────────────────────────────────────────────────────────
+// 9. NYAY RESPONSIBLE AI & POLICY GUARDRAIL TESTS
+// ─────────────────────────────────────────────────────────────
+console.log("\n--- 9. Testing Nyay Responsible AI Policy Guardrails ---");
+
+it("Nyay Test 1: Consent Withdrawal strictly suppresses recommendations with reason codes & audit log", () => {
+  try {
+    // Rahul begins with active consent
+    const initialConsent = getUserConsentState("u-rahul");
+    assert.strictEqual(initialConsent.PERSONALIZATION, "AUTHORIZED");
+
+    // Revoke personalization consent
+    toggleKavachConsent("rahul", "c-1", "REVOKED");
+    const revokedConsent = getUserConsentState("u-rahul");
+    assert.strictEqual(revokedConsent.PERSONALIZATION, "REVOKED");
+
+    // Evaluate Nyay Guardrail under revoked consent
+    const nyayResult = evaluateNyayGuardrails("rahul");
+
+    // Mandatory Nyay Contract Verification
+    assert.strictEqual(nyayResult.decision, "SUPPRESS");
+    assert.ok(Array.isArray(nyayResult.reasonCodes));
+    assert.ok(nyayResult.reasonCodes.includes("RULE_CONSENT_REVOKED_GATE"));
+    assert.ok(nyayResult.reasonCodes.includes("RULE_PURPOSE_LIMITATION_PERSONALIZATION"));
+    assert.ok(typeof nyayResult.timestamp === "string" && nyayResult.timestamp.length > 0);
+    assert.strictEqual(nyayResult.consentState.PERSONALIZATION, "REVOKED");
+    assert.ok(nyayResult.stressBand === "LOW" || nyayResult.stressBand === "HIGH" || nyayResult.stressBand === "MEDIUM");
+    assert.ok(nyayResult.explanation.en.includes("DPDP Act 2023"));
+
+    // Verify audit log entry
+    const auditRow = db
+      .prepare("SELECT * FROM audit_logs WHERE user_id = 'u-rahul' AND rule_id = 'RULE_CONSENT_REVOKED_GATE' ORDER BY timestamp DESC, rowid DESC LIMIT 1")
+      .get() as any;
+    assert.ok(auditRow, "Audit log record for consent revocation must exist");
+    assert.strictEqual(auditRow.action, "SUPPRESS");
+  } finally {
+    // Restore consent for Rahul
+    toggleKavachConsent("rahul", "c-1", "AUTHORIZED");
+    const restoredConsent = getUserConsentState("u-rahul");
+    assert.strictEqual(restoredConsent.PERSONALIZATION, "AUTHORIZED");
+  }
+});
+
+it("Nyay Test 2: High stress profile triggers ASSIST_FIRST and enforces predatory credit suppression guarantee", () => {
+  // Kamala Devi has HIGH stress (missed EMI, deficit surplus, DTI 58%)
+  const kamalaNyay = evaluateNyayGuardrails("kamala");
+
+  // Mandatory Nyay Contract Verification
+  assert.strictEqual(kamalaNyay.decision, "ASSIST_FIRST");
+  assert.strictEqual(kamalaNyay.stressBand, "HIGH");
+  assert.ok(kamalaNyay.reasonCodes.includes("RULE_PREDATORY_SUPPRESSION_GUARANTEE_V1"));
+  assert.ok(kamalaNyay.reasonCodes.includes("RULE_HIGH_STRESS_GUARD"));
+  assert.ok(typeof kamalaNyay.timestamp === "string");
+  assert.ok(kamalaNyay.consentState.PERSONALIZATION);
+  assert.ok(kamalaNyay.mathParameters.length >= 3);
+
+  // Check audit log
+  const auditRow = db
+    .prepare("SELECT * FROM audit_logs WHERE user_id = 'u-kamala' AND rule_id = 'RULE_PREDATORY_SUPPRESSION_GUARANTEE_V1' ORDER BY timestamp DESC, rowid DESC LIMIT 1")
+    .get() as any;
+  assert.ok(auditRow, "Audit log record for Kamala high stress safeguard must exist");
+});
+
+it("Nyay Test 3: High leverage guardrail suppresses uncollateralized credit when DTI > 35%", () => {
+  // Create a synthetic over-leveraged user (DTI = 44%, positive surplus, stressBand = LOW)
+  db.prepare("INSERT OR REPLACE INTO users (id, name, persona_key, locale, income_band, digital_maturity) VALUES (?, ?, ?, ?, ?, ?)").run(
+    "u-overleveraged",
+    "Overleveraged User",
+    "overleveraged",
+    "en",
+    "SALARIED_MID",
+    "DIGITAL_CONFIDENT"
+  );
+  db.prepare("INSERT OR REPLACE INTO financial_profiles (user_id, income_est, essential_spends, emi_load, surplus, runway_months, stress_score, stress_band, segment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").run(
+    "u-overleveraged",
+    50000,
+    18000,
+    22000, // DTI = 22000 / 50000 = 44.0% (> 35%)
+    10000,
+    3.2,
+    20,
+    "LOW",
+    "SALARIED_SURPLUS"
+  );
+  db.prepare("INSERT OR REPLACE INTO consent_records (id, user_id, purpose, institution, status, expires_at) VALUES (?, ?, ?, ?, ?, ?)").run(
+    "c-overleveraged-1",
+    "u-overleveraged",
+    "Cashflow & Runway Analysis",
+    "HDFC Bank",
+    "AUTHORIZED",
+    "2027-12-31"
+  );
+
+  // Proposed recommendation offering an unsecured credit card
+  const creditDecision: any = {
+    action: "RECOMMEND",
+    headline: "Unsecured Personal Credit Line",
+    ruleCode: "RULE_EXPANSION_STABLE_SURPLUS_V4",
+    candidateProduct: {
+      id: "prod-credit-card",
+      name: "High Limit Platinum Credit Card",
+      family: "CREDIT",
+      provider: "Partner Bank",
+      minSurplus: 5000,
+      maxDti: 0.35,
+      apr: 18.0,
+      commissionRate: 0.02,
+      description: "Credit card with high limit",
+    },
+    metrics: { needScore: 85, suitabilityScore: 80, eligibilityPassed: true, timingScore: 80, compositeScore: 82 },
+    fiduciaryCheck: { passed: true, reason: "Surplus is positive" },
+  };
+
+  try {
+    const nyayResult = evaluateNyayGuardrails("overleveraged", creditDecision);
+
+    // Nyay must override RECOMMEND -> SUPPRESS for CREDIT product due to DTI > 35%
+    assert.strictEqual(nyayResult.decision, "SUPPRESS");
+    assert.ok(nyayResult.reasonCodes.includes("RULE_LEVERAGE_OVERBURDEN_GATE"));
+    assert.strictEqual(nyayResult.stressBand, "LOW");
+    assert.strictEqual(nyayResult.consentState.PERSONALIZATION, "AUTHORIZED");
+
+    // Verify DTI math parameter was flagged as over-leveraged
+    const dtiParam = nyayResult.mathParameters.find((p) => p.parameter.includes("DTI"));
+    assert.ok(dtiParam);
+    assert.ok(dtiParam.result.includes("HIGH_STRESS") || dtiParam.result.includes("Over-Leveraged"));
+  } finally {
+    // Clean up synthetic user and cascade audit logs
+    db.prepare("DELETE FROM audit_logs WHERE user_id = 'u-overleveraged'").run();
+    db.prepare("DELETE FROM consent_records WHERE user_id = 'u-overleveraged'").run();
+    db.prepare("DELETE FROM financial_profiles WHERE user_id = 'u-overleveraged'").run();
+    db.prepare("DELETE FROM users WHERE id = 'u-overleveraged'").run();
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// 10. KAVACH ANOMALY DETECTION & VERIFICATION TESTS
+// ─────────────────────────────────────────────────────────────
+console.log("\n--- 10. Testing Kavach Anomaly Detection & Verification ---");
+
+it("Kavach Test 4: Normal routine daytime transaction to known payee yields NORMAL decision and NO freeze", () => {
+  const normalTx: TransactionRecord = {
+    id: "tx-norm-101",
+    timestamp: "2026-09-12 14:20:00",
+    amount: 1250,
+    type: "DEBIT",
+    category: "GROCERIES",
+    payee: "BigBasket Daily",
+  };
+
+  const history: TransactionRecord[] = [
+    {
+      id: "tx-h-1",
+      timestamp: "2026-08-28 11:15:00",
+      amount: 1400,
+      type: "DEBIT",
+      category: "GROCERIES",
+      payee: "BigBasket Daily",
+    },
+    {
+      id: "tx-h-2",
+      timestamp: "2026-09-04 15:30:00",
+      amount: 980,
+      type: "DEBIT",
+      category: "GROCERIES",
+      payee: "BigBasket Daily",
+    },
+    {
+      id: "tx-h-3",
+      timestamp: "2026-09-08 18:00:00",
+      amount: 1600,
+      type: "DEBIT",
+      category: "GROCERIES",
+      payee: "BigBasket Daily",
+    },
+  ];
+
+  const analysis = analyzeTransactionAnomaly(normalTx, history, 65000);
+
+  assert.strictEqual(analysis.decision, "NORMAL");
+  assert.ok(analysis.anomalyScore < 35);
+  assert.strictEqual(analysis.verifyPrompt, undefined);
+  assert.strictEqual(analysis.accountFrozen, false, "Kavach must never auto-freeze accounts");
+  assert.strictEqual(analysis.signals.length, 0);
+});
+
+it("Kavach Test 5: Anomalous transaction triggers VERIFY with prompt 'Did you send ₹X to Y?' and NO freeze", () => {
+  const history: TransactionRecord[] = [
+    {
+      id: "tx-h-10",
+      timestamp: "2026-08-10 12:00:00",
+      amount: 1500,
+      type: "DEBIT",
+      category: "FOOD",
+      payee: "Swiggy",
+    },
+    {
+      id: "tx-h-11",
+      timestamp: "2026-08-20 14:00:00",
+      amount: 2000,
+      type: "DEBIT",
+      category: "UTILITIES",
+      payee: "Torrent Power",
+    },
+  ];
+
+  // Anomalous transaction: 03:20 AM, new payee, ₹42,000 (exceeds median * 3.5 and 60% of balance)
+  const anomalousTx: TransactionRecord = {
+    id: "tx-anom-999",
+    timestamp: "2026-09-12 03:20:00",
+    amount: 42000,
+    type: "DEBIT",
+    category: "TRANSFER",
+    payee: "Apex Crypto Gateway",
+  };
+
+  const analysis = analyzeTransactionAnomaly(anomalousTx, history, 50000);
+
+  // Must trigger VERIFY (or ALERT)
+  assert.ok(analysis.decision === "VERIFY" || analysis.decision === "ALERT");
+  assert.ok(analysis.anomalyScore >= 35);
+
+  // Verify exact prompt contract: "Did you send ₹X to Y?"
+  assert.ok(analysis.verifyPrompt);
+  assert.strictEqual(analysis.verifyPrompt, "Did you send ₹42,000 to Apex Crypto Gateway?");
+
+  // Crucial Fiduciary Guard: account must NOT be frozen
+  assert.strictEqual(analysis.accountFrozen, false, "Kavach must NEVER auto-freeze accounts");
+
+  // Check signals detected
+  const signalTypes = analysis.signals.map((s) => s.type);
+  assert.ok(signalTypes.includes("NEW_PAYEE"));
+  assert.ok(signalTypes.includes("UNUSUAL_AMOUNT"));
+  assert.ok(signalTypes.includes("UNUSUAL_HOUR"));
+});
+
+it("Kavach Test 6: YES confirmation marks transaction RECOGNIZED with audit log and NO freeze", () => {
+  const eventId = `fe-test-yes-${Date.now()}`;
+  const result = confirmKavachFraudEvent("rahul", eventId, true);
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.recognized, true);
+  assert.strictEqual(result.status, "RECOGNIZED");
+  assert.strictEqual(result.accountFrozen, false);
+
+  // Check database record in fraud_events
+  const fraudRow = db.prepare("SELECT * FROM fraud_events WHERE id = ?").get(eventId) as any;
+  assert.ok(fraudRow);
+  assert.strictEqual(fraudRow.customer_response, "RECOGNIZED");
+
+  // Check audit log
+  const auditRow = db
+    .prepare("SELECT * FROM audit_logs WHERE user_id = 'u-rahul' AND action = 'VERIFIED_TRANSACTION_RECOGNIZED' ORDER BY timestamp DESC, rowid DESC LIMIT 1")
+    .get() as any;
+  assert.ok(auditRow, "Audit log for YES confirmation must exist");
+  assert.strictEqual(auditRow.rule_id, "RULE_KAVACH_CUSTOMER_VERIFIED_V1");
+});
+
+it("Kavach Test 7: NO confirmation marks transaction ESCALATED, triggers security alert, and preserves NO freeze", () => {
+  const eventId = `fe-test-no-${Date.now()}`;
+  const result = confirmKavachFraudEvent("rahul", eventId, false);
+
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(result.recognized, false);
+  assert.strictEqual(result.status, "ESCALATED");
+  assert.strictEqual(result.accountFrozen, false, "Kavach never auto-freezes accounts even on dispute");
+
+  // Check database record in fraud_events
+  const fraudRow = db.prepare("SELECT * FROM fraud_events WHERE id = ?").get(eventId) as any;
+  assert.ok(fraudRow);
+  assert.strictEqual(fraudRow.customer_response, "ESCALATED");
+
+  // Check alert inserted into alerts table
+  const alertRow = db
+    .prepare("SELECT * FROM alerts WHERE user_id = 'u-rahul' AND kind = 'FRAUD' ORDER BY created_at DESC LIMIT 1")
+    .get() as any;
+  assert.ok(alertRow, "Security escalation alert must be logged in alerts table");
+  assert.strictEqual(alertRow.severity, "HIGH");
+  assert.ok(alertRow.headline.includes("Security Escalation"));
+
+  // Check audit log
+  const auditRow = db
+    .prepare("SELECT * FROM audit_logs WHERE user_id = 'u-rahul' AND action = 'ESCALATION_UNAUTHORIZED_TRANSACTION' ORDER BY timestamp DESC, rowid DESC LIMIT 1")
+    .get() as any;
+  assert.ok(auditRow, "Audit log for NO escalation must exist");
+  assert.strictEqual(auditRow.rule_id, "RULE_KAVACH_FRAUD_ESCALATION_V1");
 });
 
 console.log("\n=======================================================");
