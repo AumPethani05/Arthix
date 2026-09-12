@@ -44,8 +44,9 @@ module.exports = {
         "line-faint": "#F1F5F9",
       },
       fontFamily: {
-        sans: ["'DM Sans'", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+        sans: ["var(--font-space-grotesk)", "'Space Grotesk'", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-space-grotesk)", "'Space Grotesk'", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "'JetBrains Mono'", "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       borderRadius: {
         card: "16px",

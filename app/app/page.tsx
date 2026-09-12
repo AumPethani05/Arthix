@@ -42,6 +42,9 @@ export default function WebAppPage() {
   const [lang, setLang] = useState<Lang>("en");
   const [activePersona, setActivePersona] = useState<"rahul" | "kamala">("rahul");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifRead, setNotifRead] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Sync initial persona from URL query param if present
   useEffect(() => {
@@ -51,11 +54,24 @@ export default function WebAppPage() {
       if (p === "kamala" || p === "rahul") {
         setActivePersona(p);
         if (p === "kamala") {
-          setActiveTab("sahara"); // Jump directly to debt relief shield for Kamala
+          setActiveTab("sahara");
         }
       }
     }
   }, []);
+
+  // Close notification panel on outside click
+  useEffect(() => {
+    if (!notifOpen) return;
+    const handle = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest("[data-notif-panel]")) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [notifOpen]);
 
   const navItems = [
     { key: "dashboard", label: "Dashboard Overview", labelHi: "डैशबोर्ड अवलोकन", labelGu: "ડેશબોર્ડ વિહંગાવલોકન", icon: LayoutDashboard },
@@ -206,6 +222,21 @@ export default function WebAppPage() {
               <Search className="absolute left-3 w-4 h-4 text-ink-muted pointer-events-none" />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && searchQuery.trim()) {
+                    const q = searchQuery.toLowerCase();
+                    if (q.includes("sahara") || q.includes("emi") || q.includes("debt") || q.includes("loan")) setActiveTab("sahara");
+                    else if (q.includes("vivek") || q.includes("decision")) setActiveTab("vivek");
+                    else if (q.includes("jeevan") || q.includes("sip") || q.includes("wealth")) setActiveTab("jeevanchakra");
+                    else if (q.includes("bhasha") || q.includes("voice") || q.includes("hindi")) setActiveTab("bhashasahayak");
+                    else if (q.includes("kavach") || q.includes("consent") || q.includes("data")) setActiveTab("consent");
+                    else if (q.includes("nyay") || q.includes("audit")) setActiveTab("nyay");
+                    else setActiveTab("dashboard");
+                    setSearchQuery("");
+                  }
+                }}
                 placeholder="Search schemes, DBT, Kisan loans..."
                 className="h-10 pl-9 pr-4 rounded-xl bg-canvas border border-line text-xs text-ink placeholder-ink-muted focus:outline-none focus:ring-2 focus:ring-azure w-64"
               />
@@ -271,10 +302,63 @@ export default function WebAppPage() {
             </div>
 
             {/* Notification Bell */}
-            <button className="relative p-2.5 rounded-xl text-ink-muted hover:bg-canvas hover:text-ink transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-vermilion" />
-            </button>
+            <div className="relative" data-notif-panel>
+              <button
+                onClick={() => {
+                  setNotifOpen((v) => !v);
+                  if (!notifOpen) setNotifRead(false);
+                }}
+                className="relative p-2.5 rounded-xl text-ink-muted hover:bg-canvas hover:text-ink transition-colors"
+              >
+                <Bell className="w-5 h-5" />
+                {!notifRead && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-vermilion" />}
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 top-12 w-80 bg-white border border-line rounded-2xl shadow-xl z-50 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+                    <span className="text-sm font-bold text-ink">Notifications</span>
+                    <button onClick={() => setNotifOpen(false)} className="text-ink-muted hover:text-ink p-1 rounded-lg hover:bg-canvas">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex flex-col divide-y divide-line max-h-72 overflow-y-auto">
+                    {[
+                      { icon: "🛡️", title: "Vivek Guard blocked a predatory loan offer", time: "2 min ago", color: "text-emerald", nav: "vivek" as WebTab },
+                      { icon: "💰", title: "SBI account synced — ₹52,000 salary credited", time: "Today 09:41 AM", color: "text-azure", nav: "dashboard" as WebTab },
+                      { icon: "⚠️", title: "EMI of ₹1,200 due on Sept 15 — relief available", time: "Yesterday", color: "text-vermilion", nav: "sahara" as WebTab },
+                      { icon: "✅", title: "KYC verified via RBI Account Aggregator", time: "3 days ago", color: "text-emerald", nav: "consent" as WebTab },
+                    ].map((n, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          setActiveTab(n.nav);
+                          setNotifOpen(false);
+                          setNotifRead(true);
+                        }}
+                        className="flex items-start gap-3 px-4 py-3.5 hover:bg-canvas text-left transition-colors w-full"
+                      >
+                        <span className="text-lg shrink-0">{n.icon}</span>
+                        <div className="min-w-0">
+                          <p className={`text-xs font-semibold ${n.color} leading-snug`}>{n.title}</p>
+                          <p className="text-[11px] text-ink-faint mt-0.5">{n.time}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="px-4 py-2.5 border-t border-line">
+                    <button
+                      onClick={() => {
+                        setNotifRead(true);
+                        setNotifOpen(false);
+                      }}
+                      className="text-xs font-semibold text-azure hover:underline w-full text-center"
+                    >
+                      Mark all as read
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Profile Name & Avatar & Logout */}
             <div className="flex items-center gap-2.5 pl-3 border-l border-line">

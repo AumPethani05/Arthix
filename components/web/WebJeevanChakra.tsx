@@ -28,6 +28,118 @@ interface WebJeevanChakraProps {
 export function WebJeevanChakra({ lang, onOpenNyay }: WebJeevanChakraProps) {
   const [expandedComparison, setExpandedComparison] = useState(true);
 
+  const c = {
+    en: {
+      badge: "Algorithmic Wealth Stewardship • Fiduciary Tier",
+      title: "JeevanChakra Life-Stage Guidance",
+      titleSub: "जीवन चक्र दीर्घकालिक वित्तीय मार्गदर्शन",
+      sebi: "SEBI Direct Fiduciary", zero: "0% Commission Model",
+      optimal: "OPTIMAL TRAJECTORY RECOMMENDATION",
+      sipTitle: "Disciplined Long-Term Wealth: Direct Nifty 50 Index SIP",
+      sipMatch: "98% Suitability Match",
+      deployment: "Recommended Monthly Deployment",
+      surplus: "of your current ₹15,120 net monthly surplus.",
+      startSip: "Start Direct SIP (Zero Fees)",
+      sipInitiated: "✓ SIP Initiated — Check your mobile",
+      whyThis: "Why this? (Inspect Nyay Audit)",
+      guardrails: "Key Suitability Guardrails:",
+      g1: "Zero distributor kickback loading — 100% of your rupees work for you.",
+      g2: "Liquid emergency buffer untouched (3.2 months remain secured in SBI savings).",
+      g3: "Automated pause trigger if your monthly net inflow dips below ₹38,000.",
+      transparency: "Transparency Audit",
+      comparison: "Direct Index SIP vs Traditional Bank ULIP Policy",
+      directLabel: "ARTHIX Direct Plan (SEBI Mandated)",
+      ulipLabel: "Typical Bank Branch ULIP / Endowment",
+      expenseRatio: "Expense Ratio:", commission: "Distributor Commission:", lockin: "Lock-in Period:",
+      wealthTitle: "10-Year Projected Wealth", wealthBadge: "₹6.98L @ 11.5% CAGR",
+      committed: "Capital Committed: ₹3.60 Lakhs", netGain: "Net Gain: +₹3.38 Lakhs",
+      milestonesTitle: "Life-Stage Milestones (जीवन पथ)",
+      m1: "1. 3-Month Emergency Liquidity Buffer", m1sub: "₹85,200 secured in SBI Savings. Safeguards your household against income shocks.",
+      m2: "2. Wealth Preservation: Nifty 50 Index SIP", m2sub: "Deploying ₹3,000/mo unneeded surplus float into transparent direct equities.",
+      m3: "3. Sovereign Gold Bonds (SGB) Reserve", m3sub: "RBI backed 2.5% semi-annual interest with sovereign capital guarantee.",
+    },
+    hi: {
+      badge: "एल्गोरिदमिक धन प्रबंधन • फिड्युशियरी स्तर",
+      title: "जीवन चक्र जीवन-चरण मार्गदर्शन",
+      titleSub: "जीवन चक्र दीर्घकालिक वित्तीय मार्गदर्शन",
+      sebi: "सेबी प्रत्यक्ष न्यासी", zero: "0% कमीशन मॉडल",
+      optimal: "इष्टतम मार्ग सिफारिश",
+      sipTitle: "अनुशासित दीर्घकालिक संपत्ति: प्रत्यक्ष Nifty 50 इंडेक्स SIP",
+      sipMatch: "98% उपयुक्तता मिलान",
+      deployment: "अनुशंसित मासिक तैनाती",
+      surplus: "आपके ₹15,120 मासिक अधिशेष का।",
+      startSip: "प्रत्यक्ष SIP शुरू करें (शून्य शुल्क)",
+      sipInitiated: "✓ SIP शुरू — मोबाइल पर जांचें",
+      whyThis: "यह क्यों? (न्याय ऑडिट देखें)",
+      guardrails: "मुख्य उपयुक्तता सुरक्षा:",
+      g1: "शून्य वितरक कमीशन — आपका हर रुपया आपके लिए काम करता है।",
+      g2: "आपातकालीन बफर अछूता (एसबीआई में 3.2 माह सुरक्षित)।",
+      g3: "आय ₹38,000 से कम होने पर SIP स्वचालित रूप से रुक जाएगी।",
+      transparency: "पारदर्शिता ऑडिट",
+      comparison: "प्रत्यक्ष इंडेक्स SIP बनाम पारंपरिक ULIP",
+      directLabel: "आर्थिक्स प्रत्यक्ष योजना (सेबी अनिवार्य)",
+      ulipLabel: "पारंपरिक बैंक शाखा ULIP / एंडोवमेंट",
+      expenseRatio: "व्यय अनुपात:", commission: "वितरक कमीशन:", lockin: "लॉक-इन अवधि:",
+      wealthTitle: "10-वर्षीय संपत्ति अनुमान", wealthBadge: "₹6.98 लाख @ 11.5% CAGR",
+      committed: "निवेश: ₹3.60 लाख", netGain: "शुद्ध लाभ: +₹3.38 लाख",
+      milestonesTitle: "जीवन-चरण मील के पत्थर",
+      m1: "1. 3-माह आपातकालीन नकदी बफर", m1sub: "₹85,200 एसबीआई बचत में सुरक्षित। आय के झटकों से सुरक्षा।",
+      m2: "2. संपत्ति संरक्षण: Nifty 50 इंडेक्स SIP", m2sub: "₹3,000/माह अधिशेष को पारदर्शी प्रत्यक्ष इक्विटी में लगाया।",
+      m3: "3. संप्रभु स्वर्ण बांड (SGB) रिजर्व", m3sub: "आरबीआई समर्थित 2.5% अर्ध-वार्षिक ब्याज।",
+    },
+    gu: {
+      badge: "અલ્ગોરિધમિક સંપત્તિ વ્યવસ્થાપન • ફિડ્યુશિયરી સ્તર",
+      title: "જીવનચક્ર જીવન-તબક્કા માર્ગદર્શન",
+      titleSub: "જીવનચક્ર દીર્ઘકાલીન નાણાકીય માર્ગદર્શન",
+      sebi: "સેબી ડાયરેક્ટ ફિડ્યુશિયરી", zero: "0% કમિશન મોડલ",
+      optimal: "શ્રેષ્ઠ માર્ગ ભલામણ",
+      sipTitle: "શિસ્તબદ્ધ દીર્ઘકાલીન સંપત્તિ: ડાયરેક્ટ નિફ્ટી 50 ઇન્ડેક્સ SIP",
+      sipMatch: "98% યોગ્યતા મેળ",
+      deployment: "ભલામણ કરેલ માસિક રોકાણ",
+      surplus: "તમારા ₹15,120 માસિક બચતમાંથી.",
+      startSip: "ડાયરેક્ટ SIP શરૂ કરો (શૂન્ય શુલ્ક)",
+      sipInitiated: "✓ SIP શરૂ થઈ — મોબાઇલ પર પુષ્ટિ તપાસો",
+      whyThis: "આ કેમ? (ન્યાય ઑડિટ જુઓ)",
+      guardrails: "મુખ્ય યોગ્યતા સુરક્ષાઓ:",
+      g1: "શૂન્ય વિતરક કમિશન — તમારો દરેક રૂપિયો તમારા માટે કામ કરે છે.",
+      g2: "ઇમરજન્સી બફર અકબંધ (એસબીઆઈમાં 3.2 મહિના સુરક્ષિત).",
+      g3: "આવક ₹38,000 થી ઘટે તો SIP આપોઆપ સ્થગિત થઈ જશે.",
+      transparency: "પારદર્શિતા ઑડિટ",
+      comparison: "ડાયરેક્ટ ઇન્ડેક્સ SIP વિરુદ્ધ પરંપરાગત બેંક ULIP",
+      directLabel: "આર્થિક્સ ડાયરેક્ટ પ્લાન (સેબી ફરજિયાત)",
+      ulipLabel: "સામાન્ય બેંક શાખા ULIP / એન્ડોમેન્ટ",
+      expenseRatio: "ખર્ચ ગુણોત્તર:", commission: "વિતરક કમિશન:", lockin: "લૉક-ઇન સમયગાળો:",
+      wealthTitle: "10-વર્ષીય સંપત્તિ અંદાજ", wealthBadge: "₹6.98 લાખ @ 11.5% CAGR",
+      committed: "રોકાણ કરેલ મૂડી: ₹3.60 લાખ", netGain: "ચોખ્ખો નફો: +₹3.38 લાખ",
+      milestonesTitle: "જીવન-તબક્કાના લક્ષ્યો (જીવન પથ)",
+      m1: "1. 3-મહિનાનો ઇમરજન્સી રોકડ બફર", m1sub: "₹85,200 એસબીઆઈ બચતમાં સુરક્ષિત. આવકના આંચકા સામે રક્ષણ.",
+      m2: "2. સંપત્તિ નિર્માણ: નિફ્ટી 50 ઇન્ડેક્સ SIP", m2sub: "વધારાના ₹3,000/માસિક ફ્લોટને પારદર્શક ડાયરેક્ટ ઇક્વિટીમાં રોકો.",
+      m3: "3. સોવરિન ગોલ્ડ બોન્ડ્સ (SGB) રિઝર્વ", m3sub: "આરબીઆઈ સમર્થિત 2.5% અર્ધવાર્ષિક વ્યાજ સાથે સરકારી મૂડી સુરક્ષા.",
+    },
+  }[lang] ?? {
+    badge: "Algorithmic Wealth Stewardship • Fiduciary Tier",
+    title: "JeevanChakra Life-Stage Guidance",
+    titleSub: "जीवन चक्र दीर्घकालिक वित्तीय मार्गदर्शन",
+    sebi: "SEBI Direct Fiduciary", zero: "0% Commission Model",
+    optimal: "OPTIMAL TRAJECTORY RECOMMENDATION",
+    sipTitle: "Disciplined Long-Term Wealth: Direct Nifty 50 Index SIP",
+    sipMatch: "98% Suitability Match", deployment: "Recommended Monthly Deployment",
+    surplus: "of your current ₹15,120 net monthly surplus.",
+    startSip: "Start Direct SIP (Zero Fees)", sipInitiated: "✓ SIP Initiated — Check your mobile",
+    whyThis: "Why this? (Inspect Nyay Audit)", guardrails: "Key Suitability Guardrails:",
+    g1: "Zero distributor kickback loading.", g2: "Liquid emergency buffer untouched.",
+    g3: "Automated pause trigger if inflow dips.", transparency: "Transparency Audit",
+    comparison: "Direct Index SIP vs Traditional Bank ULIP Policy",
+    directLabel: "ARTHIX Direct Plan (SEBI Mandated)", ulipLabel: "Typical Bank Branch ULIP / Endowment",
+    expenseRatio: "Expense Ratio:", commission: "Distributor Commission:", lockin: "Lock-in Period:",
+    wealthTitle: "10-Year Projected Wealth", wealthBadge: "₹6.98L @ 11.5% CAGR",
+    committed: "Capital Committed: ₹3.60 Lakhs", netGain: "Net Gain: +₹3.38 Lakhs",
+    milestonesTitle: "Life-Stage Milestones (जीवन पथ)",
+    m1: "1. 3-Month Emergency Liquidity Buffer", m1sub: "₹85,200 secured in SBI Savings.",
+    m2: "2. Wealth Preservation: Nifty 50 Index SIP", m2sub: "Deploying ₹3,000/mo surplus.",
+    m3: "3. Sovereign Gold Bonds (SGB) Reserve", m3sub: "RBI backed 2.5% semi-annual interest.",
+  };
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto pb-12">
       {/* SIP Confirmation Toast */}
@@ -35,7 +147,7 @@ export function WebJeevanChakra({ lang, onOpenNyay }: WebJeevanChakraProps) {
         id="sip-confirm-toast"
         className="fixed bottom-6 right-6 z-50 bg-emerald text-white px-5 py-3 rounded-2xl shadow-xl text-xs font-bold opacity-0 transition-opacity duration-500 pointer-events-none"
       >
-        ✓ SIP mandate initiated — Confirmation sent to your registered mobile.
+        {c.sipInitiated}
       </div>
       {/* Top Banner */}
       <div className="glass-card rounded-2xl p-6 sm:p-7 flex flex-col gap-4">
@@ -43,23 +155,22 @@ export function WebJeevanChakra({ lang, onOpenNyay }: WebJeevanChakraProps) {
           <div>
             <div className="flex items-center gap-2 text-azure text-xs font-bold tracking-wider uppercase mb-1">
               <Sparkles className="w-4 h-4 text-azure" />
-              <span>Algorithmic Wealth Stewardship • Fiduciary Tier</span>
+              <span>{c.badge}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
-              JeevanChakra Life-Stage Guidance
+              {c.title}
               <span className="block text-azure text-xl sm:text-2xl font-semibold mt-1">
-                जीवन चक्र दीर्घकालिक वित्तीय मार्गदर्शन
+                {c.titleSub}
               </span>
             </h1>
           </div>
-
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-soft text-emerald border border-emerald/20">
               <ShieldCheck className="w-3.5 h-3.5" />
-              SEBI Direct Fiduciary
+              {c.sebi}
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-canvas text-ink-muted border border-line">
-              0% Commission Model
+              {c.zero}
             </span>
           </div>
         </div>
@@ -74,32 +185,29 @@ export function WebJeevanChakra({ lang, onOpenNyay }: WebJeevanChakraProps) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <span className="text-xs uppercase font-extrabold text-azure tracking-wider">
-                  OPTIMAL TRAJECTORY RECOMMENDATION
+                  {c.optimal}
                 </span>
                 <h2 className="text-xl sm:text-2xl font-bold text-ink mt-1">
-                  Disciplined Long-Term Wealth: Direct Nifty 50 Index SIP
+                  {c.sipTitle}
                 </h2>
               </div>
               <span className="bg-emerald-soft text-emerald text-xs font-extrabold px-3 py-1 rounded-full shrink-0">
-                98% Suitability Match
+                {c.sipMatch}
               </span>
             </div>
 
             {/* Quantitative Deployment Figure */}
             <div className="bg-canvas p-5 rounded-xl border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <span className="text-xs text-ink-muted">Recommended Monthly Deployment</span>
+                <span className="text-xs text-ink-muted">{c.deployment}</span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-3xl font-extrabold text-navy-deep font-tabular">
-                    ₹3,000
-                  </span>
+                  <span className="text-3xl font-extrabold text-navy-deep font-tabular">₹3,000</span>
                   <span className="text-xs text-ink-muted">/ month</span>
                 </div>
                 <p className="text-xs text-ink-muted mt-1">
-                  Consumes <strong>19.8%</strong> of your current ₹15,120 net monthly surplus.
+                  Consumes <strong>19.8%</strong> {c.surplus}
                 </p>
               </div>
-
               <div className="flex flex-col gap-2 shrink-0">
                 <button
                   className="bg-navy-deep hover:bg-navy-rich text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all"
@@ -113,102 +221,51 @@ export function WebJeevanChakra({ lang, onOpenNyay }: WebJeevanChakraProps) {
                     }
                   }}
                 >
-                  Start Direct SIP (Zero Fees)
+                  {c.startSip}
                 </button>
-                <button
-                  onClick={onOpenNyay}
-                  className="text-azure text-xs font-semibold hover:underline flex items-center justify-center gap-1"
-                >
+                <button onClick={onOpenNyay} className="text-azure text-xs font-semibold hover:underline flex items-center justify-center gap-1">
                   <HelpCircle className="w-3.5 h-3.5" />
-                  Why this? (Inspect Nyay Audit)
+                  {c.whyThis}
                 </button>
               </div>
             </div>
 
-            {/* Why Vivek Selected This Plan */}
             <div className="flex flex-col gap-2.5 text-xs text-ink-muted">
-              <span className="font-bold text-ink text-xs uppercase tracking-wide">
-                Key Suitability Guardrails:
-              </span>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald shrink-0" />
-                <span>Zero distributor kickback loading — 100% of your rupees work for you.</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald shrink-0" />
-                <span>Liquid emergency buffer untouched (3.2 months remain secured in SBI savings).</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald shrink-0" />
-                <span>Automated pause trigger if your monthly net inflow dips below ₹38,000.</span>
-              </div>
+              <span className="font-bold text-ink text-xs uppercase tracking-wide">{c.guardrails}</span>
+              <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>{c.g1}</span></div>
+              <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>{c.g2}</span></div>
+              <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>{c.g3}</span></div>
             </div>
           </div>
 
-          {/* Direct Fiduciary vs Predatory Product Comparison */}
           <div className="glass-card rounded-2xl p-6 flex flex-col gap-4">
-            <div
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => setExpandedComparison(!expandedComparison)}
-            >
+            <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedComparison(!expandedComparison)}>
               <div>
-                <span className="text-xs uppercase font-extrabold text-ink-muted">
-                  Transparency Audit
-                </span>
-                <h3 className="text-base font-bold text-ink">
-                  Direct Index SIP vs Traditional Bank ULIP Policy
-                </h3>
+                <span className="text-xs uppercase font-extrabold text-ink-muted">{c.transparency}</span>
+                <h3 className="text-base font-bold text-ink">{c.comparison}</h3>
               </div>
-              {expandedComparison ? (
-                <ChevronUp className="w-5 h-5 text-ink-muted" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-ink-muted" />
-              )}
+              {expandedComparison ? <ChevronUp className="w-5 h-5 text-ink-muted" /> : <ChevronDown className="w-5 h-5 text-ink-muted" />}
             </div>
-
             {expandedComparison && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                {/* Direct SIP (ARTHIX) */}
                 <div className="p-4 rounded-xl bg-emerald-soft/50 border border-emerald/30 flex flex-col gap-2.5">
                   <div className="flex items-center gap-2 text-emerald font-bold text-xs">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>ARTHIX Direct Plan (SEBI Mandated)</span>
+                    <CheckCircle2 className="w-4 h-4" /><span>{c.directLabel}</span>
                   </div>
                   <div className="text-xs flex flex-col gap-1.5 text-ink">
-                    <div className="flex justify-between">
-                      <span className="text-ink-muted">Expense Ratio:</span>
-                      <span className="font-bold">0.12% per year</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-ink-muted">Distributor Commission:</span>
-                      <span className="font-bold text-emerald">₹0 (Zero)</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-ink-muted">Lock-in Period:</span>
-                      <span className="font-bold">None (Flexible Exit)</span>
-                    </div>
+                    <div className="flex justify-between"><span className="text-ink-muted">{c.expenseRatio}</span><span className="font-bold">0.12% per year</span></div>
+                    <div className="flex justify-between"><span className="text-ink-muted">{c.commission}</span><span className="font-bold text-emerald">₹0 (Zero)</span></div>
+                    <div className="flex justify-between"><span className="text-ink-muted">{c.lockin}</span><span className="font-bold">None (Flexible Exit)</span></div>
                   </div>
                 </div>
-
-                {/* Traditional ULIP / Endowment */}
                 <div className="p-4 rounded-xl bg-vermilion-soft/40 border border-vermilion/20 flex flex-col gap-2.5">
                   <div className="flex items-center gap-2 text-vermilion font-bold text-xs">
-                    <XCircle className="w-4 h-4" />
-                    <span>Typical Bank Branch ULIP / Endowment</span>
+                    <XCircle className="w-4 h-4" /><span>{c.ulipLabel}</span>
                   </div>
                   <div className="text-xs flex flex-col gap-1.5 text-ink">
-                    <div className="flex justify-between">
-                      <span className="text-ink-muted">Front-load Fees:</span>
-                      <span className="font-bold text-vermilion">Up to 6.5% of premium</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-ink-muted">Agent Commission:</span>
-                      <span className="font-bold text-vermilion">₹18,000 over 5 yrs</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-ink-muted">Lock-in Period:</span>
-                      <span className="font-bold text-vermilion">5 Years Mandatory</span>
-                    </div>
+                    <div className="flex justify-between"><span className="text-ink-muted">Front-load Fees:</span><span className="font-bold text-vermilion">Up to 6.5% of premium</span></div>
+                    <div className="flex justify-between"><span className="text-ink-muted">Agent Commission:</span><span className="font-bold text-vermilion">₹18,000 over 5 yrs</span></div>
+                    <div className="flex justify-between"><span className="text-ink-muted">{c.lockin}</span><span className="font-bold text-vermilion">5 Years Mandatory</span></div>
                   </div>
                 </div>
               </div>
@@ -216,15 +273,11 @@ export function WebJeevanChakra({ lang, onOpenNyay }: WebJeevanChakraProps) {
           </div>
         </div>
 
-        {/* Right Column: Goal Trajectory & Timeline (5 cols) */}
         <div className="lg:col-span-5 flex flex-col gap-6">
-          {/* 10-Year Wealth Projection Chart */}
           <div className="glass-card rounded-2xl p-6 flex flex-col gap-4 border border-line">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-navy-deep">10-Year Projected Wealth</h3>
-              <span className="text-xs font-bold text-emerald bg-emerald-soft px-2.5 py-1 rounded-full">
-                ₹6.98L @ 11.5% CAGR
-              </span>
+              <h3 className="text-sm font-bold text-navy-deep">{c.wealthTitle}</h3>
+              <span className="text-xs font-bold text-emerald bg-emerald-soft px-2.5 py-1 rounded-full">{c.wealthBadge}</span>
             </div>
             <div className="w-full h-28 relative bg-canvas rounded-xl border border-line p-3">
               <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 600 100">
@@ -249,59 +302,35 @@ export function WebJeevanChakra({ lang, onOpenNyay }: WebJeevanChakraProps) {
               </svg>
             </div>
             <div className="flex items-center justify-between text-xs text-ink-muted">
-              <span>Capital Committed: ₹3.60 Lakhs</span>
-              <span className="text-emerald font-bold">Net Gain: +₹3.38 Lakhs</span>
+              <span>{c.committed}</span>
+              <span className="text-emerald font-bold">{c.netGain}</span>
             </div>
           </div>
 
           <div className="glass-card rounded-2xl p-6 flex flex-col gap-5">
             <h3 className="text-base font-bold text-ink pb-2 border-b border-line">
-              Life-Stage Milestones (जीवन पथ)
+              {c.milestonesTitle}
             </h3>
-
             <div className="flex flex-col gap-4 relative">
-              {/* Step 1: Done */}
               <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-full bg-emerald text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-sm">
-                  ✓
-                </div>
+                <div className="w-8 h-8 rounded-full bg-emerald text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-sm">✓</div>
                 <div>
-                  <span className="text-xs font-bold text-ink block">
-                    1. 3-Month Emergency Liquidity Buffer
-                  </span>
-                  <span className="text-xs text-ink-muted">
-                    ₹85,200 secured in SBI Savings. Safeguards your household against income shocks.
-                  </span>
+                  <span className="text-xs font-bold text-ink block">{c.m1}</span>
+                  <span className="text-xs text-ink-muted">{c.m1sub}</span>
                 </div>
               </div>
-
-              {/* Step 2: Active */}
               <div className="flex items-start gap-3.5">
-                <div className="w-8 h-8 rounded-full bg-azure text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-sm animate-pulse">
-                  2
-                </div>
+                <div className="w-8 h-8 rounded-full bg-azure text-white flex items-center justify-center shrink-0 text-xs font-bold shadow-sm animate-pulse">2</div>
                 <div>
-                  <span className="text-xs font-bold text-azure block">
-                    2. Wealth Preservation: Nifty 50 Index SIP
-                  </span>
-                  <span className="text-xs text-ink-muted">
-                    Deploying ₹3,000/mo unneeded surplus float into transparent direct equities.
-                  </span>
+                  <span className="text-xs font-bold text-azure block">{c.m2}</span>
+                  <span className="text-xs text-ink-muted">{c.m2sub}</span>
                 </div>
               </div>
-
-              {/* Step 3: Future */}
               <div className="flex items-start gap-3.5 opacity-60">
-                <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 text-xs font-bold">
-                  3
-                </div>
+                <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 text-xs font-bold">3</div>
                 <div>
-                  <span className="text-xs font-bold text-ink block">
-                    3. Sovereign Gold Bonds (SGB) Reserve
-                  </span>
-                  <span className="text-xs text-ink-muted">
-                    RBI backed 2.5% semi-annual interest with sovereign capital guarantee.
-                  </span>
+                  <span className="text-xs font-bold text-ink block">{c.m3}</span>
+                  <span className="text-xs text-ink-muted">{c.m3sub}</span>
                 </div>
               </div>
             </div>
