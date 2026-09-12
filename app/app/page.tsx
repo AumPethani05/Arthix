@@ -323,7 +323,9 @@ export default function WebAppPage() {
           {activeTab === "jeevanchakra" && (
             <WebJeevanChakra lang={lang} onOpenNyay={() => setActiveTab("nyay")} />
           )}
-          {activeTab === "bhashasahayak" && <WebBhashaSahayak lang={lang} />}
+          {activeTab === "bhashasahayak" && (
+            <WebBhashaSahayak lang={lang} activePersona={activePersona} />
+          )}
           {activeTab === "consent" && <WebKavach lang={lang} />}
           {activeTab === "nyay" && <WebNyay lang={lang} />}
         </main>

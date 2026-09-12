@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Mic,
   MicOff,
@@ -20,14 +20,19 @@ import type { Lang } from "@/components/TopBar";
 
 interface WebBhashaSahayakProps {
   lang: Lang;
+  activePersona?: string;
 }
 
-export function WebBhashaSahayak({ lang: initialLang }: WebBhashaSahayakProps) {
+export function WebBhashaSahayak({ lang: initialLang, activePersona = "rahul" }: WebBhashaSahayakProps) {
   const [activeLang, setActiveLang] = useState<Lang>(initialLang);
   const [isRecording, setIsRecording] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [inputText, setInputText] = useState("");
   const [playbackSpeed, setPlaybackSpeed] = useState<"1.0x" | "1.25x">("1.0x");
+
+  useEffect(() => {
+    setActiveLang(initialLang);
+  }, [initialLang]);
 
   const [messages, setMessages] = useState([
     {
@@ -36,7 +41,7 @@ export function WebBhashaSahayak({ lang: initialLang }: WebBhashaSahayakProps) {
       text: {
         en: "Namaste! I am your ARTHIX Sovereign Voice Assistant. How may I explain your bank statements, subsidy schemes, or loan protections today?",
         hi: "नमस्ते! मैं आपका आर्थिक्स बैंक सहायक हूँ। मैं आपको सरकारी योजनाओं, बैंक खातों या ईएमआई राहत के बारे में आपकी अपनी भाषा में सहायता करूँगा।",
-        gu: "નમસ્તે! હું આપનો આરબીઆઈ-પ્રમાણિત બેંક સહાયક છું. આપ ઘરબેઠા સરળતાથી વીડિયો કેવાયસી કેવી રીતે પૂરું કરી શકો તે હું આપને ગુજરાતીમાં સમજાવીશ.",
+        gu: "નમસ્તે! હું આપનો આર્થિક્સ બેંક સહાયક છું. આપના ખાતાની માહિતી, સરકારી યોજનાઓ અથવા વિડિયો કેવાયસી વિશે હું આપને આપની ભાષામાં મદદ કરીશ.",
       },
       hasAudio: true,
     },
@@ -78,7 +83,7 @@ export function WebBhashaSahayak({ lang: initialLang }: WebBhashaSahayakProps) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        persona: "meena",
+        persona: activePersona || "rahul",
         text: userMsgText,
         locale: activeLang,
       }),
@@ -90,10 +95,10 @@ export function WebBhashaSahayak({ lang: initialLang }: WebBhashaSahayakProps) {
           {
             sender: "bot",
             time: "Just now",
-            text: {
-              en: data.replyText,
-              hi: data.replyText,
-              gu: data.replyText,
+            text: data.translations || {
+              en: data.replyText || data.reply || "Grounded response received.",
+              hi: data.replyText || data.reply || "सत्यापित प्रतिक्रिया प्राप्त हुई।",
+              gu: data.replyText || data.reply || "પ્રમાણિત જવાબ મળ્યો.",
             },
             hasAudio: true,
           },
@@ -309,9 +314,10 @@ export function WebBhashaSahayak({ lang: initialLang }: WebBhashaSahayakProps) {
 
             <div className="flex flex-col gap-2">
               {[
-                "How do I pause my tractor or handloom EMI? (ઇએમઆઈ કેવી રીતે રોકવી?)",
-                "Is my Aadhaar linked for PM Vishwakarma DBT subsidy?",
-                "Why was my personal loan offer blocked? (લોન કેમ રોકવામાં આવી?)",
+                "KYC ma shu joie? (કેવાયસી માં શું જોઈએ?)",
+                "Why did you recommend this? (આ ભલામણ કેમ કરવામાં આવી?)",
+                "How do I pause my tractor or machinery EMI? (ઇએમઆઈ કેવી રીતે રોકવી?)",
+                "What is my current account balance? (મારું બેલેન્સ કેટલું છે?)",
               ].map((q, idx) => (
                 <button
                   key={idx}

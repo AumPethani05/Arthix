@@ -177,7 +177,16 @@ export function initDatabase() {
 
 function seedDatabase() {
   const userCheck = db.prepare("SELECT COUNT(*) as count FROM users").get() as { count: number };
-  if (userCheck.count > 0) return; // Already seeded
+  if (userCheck.count > 0) {
+    // Ensure essential fraud event for Kamala is present if table was empty
+    const fraudCheck = db.prepare("SELECT COUNT(*) as count FROM fraud_events WHERE user_id = 'u-kamala'").get() as { count: number };
+    if (fraudCheck.count === 0) {
+      db.prepare(
+        "INSERT OR IGNORE INTO fraud_events (id, user_id, transaction_id, score, decision, customer_response) VALUES (?, ?, ?, ?, ?, ?)"
+      ).run("fe-k4", "u-kamala", "tx-k4", 0.94, "VERIFY", "PENDING");
+    }
+    return;
+  }
 
   const insertUser = db.prepare(
     "INSERT INTO users (id, name, persona_key, locale, income_band, digital_maturity) VALUES (?, ?, ?, ?, ?, ?)"
