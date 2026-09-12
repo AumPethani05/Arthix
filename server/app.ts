@@ -117,6 +117,8 @@ router.get("/recommendations", (req: Request, res: Response) => {
     explanationHi: decision.explanationHi,
     explanationGu: decision.explanationGu,
     items: candidates,
+    candidates,
+    candidateProduct: decision.candidateProduct,
     reasons: [decision.ruleCode],
   });
 });

@@ -27,5 +27,7 @@ export async function GET(req: NextRequest) {
     explanationHi: decision.explanationHi,
     explanationGu: decision.explanationGu,
     candidates,
+    items: candidates,
+    candidateProduct: decision.candidateProduct,
   });
 }

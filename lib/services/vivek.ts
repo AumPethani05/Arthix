@@ -54,15 +54,20 @@ export function evaluateVivekDecision(userIdOrPersona: string): VivekDecisionOut
     };
   }
 
-  // Check Gate 5 & 6: Financial Stress & Over-leverage (Sahara)
-  const dti = profile.emiLoad / profile.incomeEst;
+  // Evaluate JeevanChakra Candidates (Life-stage candidate scoring)
+  const candidates = evaluateJeevanChakraCandidates(profile);
+  const topCandidate = candidates.length > 0 ? candidates[0] : undefined;
+
+  // Check Gate 5 & 6: Financial Stress & Over-leverage (Sahara Guardrail)
+  const dti = profile.dtiRatio ?? (profile.incomeEst > 0 ? profile.emiLoad / profile.incomeEst : 0);
 
   if (profile.stressBand === "HIGH" || dti > 0.35 || profile.surplus < 0) {
     // SUPPRESS predatory credit & switch to ASSIST_FIRST
+    const reliefCandidate = candidates.find((c) => c.family === "RELIEF") || topCandidate;
     return {
       action: "ASSIST_FIRST",
       headline: "Suppressed: 36% APR Instant Loan Blocked • 1-Tap Relief Active",
-      subline: "Active EMIs consume 58% of monthly income. Unsecured credit withheld.",
+      subline: `Active EMIs consume ${(dti * 100).toFixed(1)}% of monthly income. Unsecured credit withheld.`,
       confidence: "99.9% Protective Interception",
       ruleCode: "RULE_PREDATORY_SUPPRESSION_GUARANTEE_V1",
       citation: "RBI Digital Lending Guidelines (DLG) 2022 §3(B)",
@@ -78,37 +83,43 @@ export function evaluateVivekDecision(userIdOrPersona: string): VivekDecisionOut
         "विवेक ने सत्यापित किया कि आपकी वर्तमान ईएमआई आय का 58% हिस्सा ले रही है। सभी उच्च-ब्याज वाले ऋणों को रोक दिया गया है और सहारा 60-दिवसीय ईएमआई राहत सक्रिय की गई है।",
       explanationGu:
         "વિવેકે ચકાસ્યું કે તમારું વર્તમાન દેવું આવકનો 58% ભાગ વાપરે છે. તમામ મોંઘી લોન અટકાવવામાં આવી છે અને સહારા રાહત સક્રિય કરાઈ છે.",
+      candidateProduct: reliefCandidate,
     };
   }
 
   // Check Gate 2, 3, 4: Approved Capital Expansion for Stable Surplus Profile (Rahul)
   if (profile.runwayMonths >= 3.0 && profile.surplus > 10000 && dti < 0.25) {
+    const investmentCandidate = candidates.find((c) => c.family === "INVESTMENT") || topCandidate;
+    const recAmt = investmentCandidate?.recommendedAmount || 3000;
     return {
       action: "RECOMMEND",
-      headline: "Approved: ₹3,000 Nifty 50 Index SIP Allocation",
-      subline: "Algorithmic validation passed: 3.2 months of liquidity secured; debt ratio < 20%",
+      headline: `Approved: ₹${recAmt.toLocaleString("en-IN")} Nifty 50 Index SIP Allocation`,
+      subline: `Algorithmic validation passed: ${profile.runwayMonths} months of liquidity secured; debt ratio < 25%`,
       confidence: "98.4% Fiduciary Match",
       ruleCode: "RULE_EXPANSION_STABLE_SURPLUS_V4",
       citation: "SEBI Master Circular (Investment Advisers) 2024 §6(A)",
       metrics: [
         { label: "Reserve Coverage", val: `${profile.runwayMonths} Months`, ok: true },
         { label: "Debt-to-Income", val: `${(dti * 100).toFixed(1)}%`, ok: true },
-        { label: "Surplus Stability", val: "60 Days Continuous", ok: true },
+        { label: "Surplus Stability", val: `${profile.surplusTrend} Trend`, ok: true },
         { label: "Commission Load", val: "0% (Direct Plan Only)", ok: true },
       ],
       explanationEn:
-        "Vivek verified that your net surplus expanded by +20% over 2 consecutive monthly payroll cycles. Liquid emergency reserves exceed the statutory 3.0-month threshold. No predatory or revolving high-interest loans are active. Capital deployment into a low-cost, direct index plan is approved.",
+        "Vivek verified that your net surplus expanded stably over consecutive monthly payroll cycles. Liquid emergency reserves exceed the statutory 3.0-month threshold. No predatory or revolving high-interest loans are active. Capital deployment into a low-cost, direct index plan is approved.",
       explanationHi:
         "विवेक ने पुष्टि की कि आपकी शुद्ध बचत पिछले 2 महीनों में लगातार बढ़ी है। आपका आपातकालीन फंड 3.2 महीने सुरक्षित है। कम लागत वाले डायरेक्ट इंडेक्स फंड में निवेश स्वीकृत है।",
       explanationGu:
         "વિવેકે ચકાસ્યું કે તમારી ચોખ્ખી બચતમાં સતત વધારો થયો છે. 3.2 મહિનાનું ઇમરજન્સી ફંડ ઉપલબ્ધ હોવાથી ડાયરેક્ટ ઇન્ડેક્સ પ્લાન માન્ય કરાયો છે.",
+      candidateProduct: investmentCandidate,
     };
   }
 
-  // Fallback Conditional State
+  // Fallback Conditional State: Emergency Buffer Prerequisite
+  const savingsCandidate = candidates.find((c) => c.family === "SAVINGS") || topCandidate;
+  const topUpNeeded = savingsCandidate?.recommendedAmount || 4800;
   return {
     action: "ASSIST_FIRST",
-    headline: "Conditional: Add ₹4,800 to Liquid Reserve First",
+    headline: `Conditional: Add ₹${topUpNeeded.toLocaleString("en-IN")} to Liquid Reserve First`,
     subline: "Direct investment unlocked once emergency buffer reaches 3.0 months",
     confidence: "87.1% Fiduciary Match",
     ruleCode: "RULE_BUFFER_GATE_PREREQUISITE_V2",
@@ -116,14 +127,15 @@ export function evaluateVivekDecision(userIdOrPersona: string): VivekDecisionOut
     metrics: [
       { label: "Reserve Coverage", val: `${profile.runwayMonths} Months (Req: 3.0)`, ok: false },
       { label: "Debt-to-Income", val: `${(dti * 100).toFixed(1)}%`, ok: true },
-      { label: "Surplus Stability", val: "30 Days Continuous", ok: true },
-      { label: "Required Buffer", val: "₹4,800 Top-up", ok: false },
+      { label: "Surplus Stability", val: "Active Inflow", ok: true },
+      { label: "Required Buffer", val: `₹${topUpNeeded.toLocaleString("en-IN")} Top-up`, ok: false },
     ],
     explanationEn:
-      "Your surplus is healthy, but your liquid reserve currently sits at 2.6 months of essential living expenses. Vivek mandates topping up the emergency buffer before equity deployment.",
+      `Your surplus is positive, but your liquid reserve currently sits at ${profile.runwayMonths} months of essential living expenses. Vivek mandates topping up the emergency buffer before equity deployment.`,
     explanationHi:
       "आपकी बचत अच्छी है, लेकिन आपका आपातकालीन बफर 3.0 महीने से कम है। इक्विटी निवेश से पहले बफर बढ़ाएं।",
     explanationGu:
       "તમારી બચત સારી છે પરંતુ ઇમરજન્સી ફંડ 3.0 મહિનાથી ઓછું છે. પહેલાં ફંડ પૂર્ણ કરો.",
+    candidateProduct: savingsCandidate,
   };
 }

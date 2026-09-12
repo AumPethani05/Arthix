@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "server": "tsx server/index.ts",
+    "test": "npx tsx tests/arthbodh_jeevanchakra.test.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
