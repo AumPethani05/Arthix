@@ -1,0 +1,53 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+:root {
+  --canvas:#F8F9FC; --ink:#0F172A; --muted:#475569; --faint:#94A3B8;
+  --navy:#0F2042; --navy-deep:#08132B; --navy-rich:#1E3A8A;
+  --azure:#1D4ED8; --emerald:#0F766E; --emerald-b:#10B981;
+  --terracotta:#C2410C; --amber:#B45309; --vermilion:#BE123C;
+  --line:#E2E8F0; --soft-em:#F0FDF4; --soft-az:#EFF6FF; --soft-ve:#FFF1F2; --soft-am:#FFFBEB;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; padding:0; background:var(--canvas); color:var(--ink);
+  font-family:'Space Grotesk',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+.tabular { font-variant-numeric:tabular-nums; }
+.mono { font-family:'JetBrains Mono',monospace; }
+button { font-family:inherit; }
+.card { background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:0 4px 24px rgba(15,32,66,.06); }
+.pill { display:inline-flex; align-items:center; gap:6px; border-radius:999px; font-weight:800; font-size:11px; padding:5px 10px; }
+.app { display:flex; min-height:100vh; }
+.side { width:280px; background:#fff; border-right:1px solid var(--line); padding:22px 16px; display:flex; flex-direction:column; }
+.brand { display:flex; align-items:center; gap:10px; padding:0 8px 18px; border-bottom:1px solid var(--line); margin-bottom:14px; }
+.brand img { width:40px; height:40px; }
+.brand b { display:block; font-size:18px; color:var(--navy-deep); letter-spacing:-.02em; }
+.brand span { font-size:10px; color:var(--azure); font-weight:800; letter-spacing:.08em; }
+.navbtn { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:6px; }
+.navbtn.active { background:var(--navy-deep); color:#fff; }
+.main { flex:1; display:flex; flex-direction:column; min-width:0; }
+.top { height:72px; background:rgba(255,255,255,.9); border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 28px; }
+.page { padding:28px 32px 40px; }
+</style></head><body>
+      <header style="height:80px;display:flex;align-items:center;padding:0 40px;border-bottom:1px solid var(--line);background:#fff">
+        <img src="../../public/arthix-logo.svg" width="38" /><b style="margin-left:10px;color:var(--navy-deep)">ARTHIX</b>
+      </header>
+      <main style="display:flex;justify-content:center;padding:48px 24px">
+        <div class="card" style="width:560px;padding:36px">
+          <div style="text-align:center">
+            <div style="width:56px;height:56px;border-radius:16px;background:var(--navy-deep);margin:0 auto 12px"></div>
+            <h1 style="margin:0;color:var(--navy-deep)">Sovereign Bharat Banking Login</h1>
+            <p style="color:#64748B;font-size:14px">Demo persona access for the hackathon prototype</p>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:var(--canvas);padding:6px;border-radius:16px;border:1px solid var(--line);margin:18px 0;font-size:11px;font-weight:800;text-align:center">
+            <div style="background:#fff;padding:10px;border-radius:12px">Demo</div><div style="padding:10px;color:#64748B">OTP</div><div style="padding:10px;color:#64748B">DigiLocker</div><div style="padding:10px;color:#64748B">Google</div>
+          </div>
+          <div class="card" style="padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+            <div><b>Kamala Devi</b> <span class="pill" style="background:#FFF1F2;color:#BE123C">Stress Relief</span><div style="font-size:12px;color:#64748B;margin-top:4px">Artisan MSME · EMIs consume 58% of inflow</div></div>
+            <div style="width:36px;height:36px;border-radius:10px;border:1px solid var(--line)"></div>
+          </div>
+          <div class="card" style="padding:16px;display:flex;justify-content:space-between;align-items:center;border-color:#1D4ED8">
+            <div><b>Rahul Sharma</b> <span class="pill" style="background:#F0FDF4;color:#0F766E">Surplus Growth</span><div style="font-size:12px;color:#64748B;margin-top:4px">Tier-2 salaried · 3.2 months reserve · +20% surplus</div></div>
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--navy-rich);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">RS</div>
+          </div>
+        </div>
+      </main>
+    </body></html>

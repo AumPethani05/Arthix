@@ -1,0 +1,79 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+:root {
+  --canvas:#F8F9FC; --ink:#0F172A; --muted:#475569; --faint:#94A3B8;
+  --navy:#0F2042; --navy-deep:#08132B; --navy-rich:#1E3A8A;
+  --azure:#1D4ED8; --emerald:#0F766E; --emerald-b:#10B981;
+  --terracotta:#C2410C; --amber:#B45309; --vermilion:#BE123C;
+  --line:#E2E8F0; --soft-em:#F0FDF4; --soft-az:#EFF6FF; --soft-ve:#FFF1F2; --soft-am:#FFFBEB;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; padding:0; background:var(--canvas); color:var(--ink);
+  font-family:'Space Grotesk',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+.tabular { font-variant-numeric:tabular-nums; }
+.mono { font-family:'JetBrains Mono',monospace; }
+button { font-family:inherit; }
+.card { background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:0 4px 24px rgba(15,32,66,.06); }
+.pill { display:inline-flex; align-items:center; gap:6px; border-radius:999px; font-weight:800; font-size:11px; padding:5px 10px; }
+.app { display:flex; min-height:100vh; }
+.side { width:280px; background:#fff; border-right:1px solid var(--line); padding:22px 16px; display:flex; flex-direction:column; }
+.brand { display:flex; align-items:center; gap:10px; padding:0 8px 18px; border-bottom:1px solid var(--line); margin-bottom:14px; }
+.brand img { width:40px; height:40px; }
+.brand b { display:block; font-size:18px; color:var(--navy-deep); letter-spacing:-.02em; }
+.brand span { font-size:10px; color:var(--azure); font-weight:800; letter-spacing:.08em; }
+.navbtn { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:6px; }
+.navbtn.active { background:var(--navy-deep); color:#fff; }
+.main { flex:1; display:flex; flex-direction:column; min-width:0; }
+.top { height:72px; background:rgba(255,255,255,.9); border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 28px; }
+.page { padding:28px 32px 40px; }
+</style></head>
+  <body><div class="app" style="min-height:900px">
+  <aside class="side">
+    <div class="brand">
+      <img src="../../public/arthix-logo.svg" alt="ARTHIX" />
+      <div><b>ARTHIX</b><span>BHARAT CORE AI</span></div>
+    </div>
+    <div class="navbtn ">Dashboard Overview</div><div class="navbtn active">Sahara Debt Shield</div><div class="navbtn ">Vivek Decision Engine</div><div class="navbtn ">JeevanChakra Wealth</div><div class="navbtn ">BhashaSahayak Voice</div><div class="navbtn ">Kavach AA Consent</div><div class="navbtn ">Nyay Explainable Audit</div>
+    <div class="card" style="margin-top:auto;padding:14px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800">
+        <span>State Bank of India</span>
+        <span class="pill" style="background:#F0FDF4;color:#0F766E">Live Synced</span>
+      </div>
+      <div style="font-size:11px;color:#64748B;margin-top:4px">A/C •••• 9021 (Demo ledger)</div>
+    </div>
+  </aside><div class="main">
+  <header class="top">
+    <div class="pill" style="background:var(--canvas);border:1px solid var(--line);color:var(--ink)">
+      <span style="width:8px;height:8px;border-radius:50%;background:#10B981;display:inline-block"></span>
+      Vivek Guard Active
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div style="background:var(--canvas);border:1px solid var(--line);border-radius:14px;padding:4px">
+        <span style="padding:6px 10px;border-radius:10px;color:#64748B">Rahul</span>
+        <span style="padding:6px 10px;border-radius:10px;background:#fff;font-weight:800">Kamala</span>
+      </div>
+      <div style="background:var(--canvas);border:1px solid var(--line);border-radius:14px;padding:4px">
+        <span style="padding:6px 10px;border-radius:10px;background:var(--navy-deep);color:#fff;font-weight:800">Eng</span>
+        <span style="padding:6px 10px;color:#64748B">हिंदी</span>
+        <span style="padding:6px 10px;color:#64748B">ગુજ</span>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;font-weight:800">Kamala Devi</div>
+        <div style="font-size:10px;color:#64748B">Artisan MSME</div>
+      </div>
+    </div>
+  </header><div class="page">
+      <div class="pill" style="background:#EFF6FF;color:#1D4ED8">SAHARA · Dignified Care</div>
+      <h1 style="margin:8px 0 16px;font-size:32px;color:var(--navy-deep)">Financial Resilience & Relief</h1>
+      <div class="card" style="padding:22px;background:#FFF1F2;border-color:#fecdd3;margin-bottom:14px">
+        <div class="pill" style="background:#BE123C;color:#fff">PROTECTIVE HOLD ACTIVE</div>
+        <h2 style="margin:10px 0 6px">No new loan or credit card is being offered.</h2>
+        <p style="margin:0;color:#9f1239">Active EMIs consume 58% of monthly inflow. Vivek locked solicitation and unlocked 1-tap moratorium relief.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+        <div class="card" style="padding:16px"><div style="font-size:11px;color:#64748B;font-weight:700">Stress score</div><div class="tabular" style="font-size:24px;font-weight:800;margin:6px 0">82 / 100</div><div style="font-size:11px;color:#BE123C;font-weight:800">HIGH</div></div><div class="card" style="padding:16px"><div style="font-size:11px;color:#64748B;font-weight:700">Monthly inflow</div><div class="tabular" style="font-size:24px;font-weight:800;margin:6px 0">₹24,000</div><div style="font-size:11px;color:#BE123C;font-weight:800">Delayed</div></div><div class="card" style="padding:16px"><div style="font-size:11px;color:#64748B;font-weight:700">Committed EMIs</div><div class="tabular" style="font-size:24px;font-weight:800;margin:6px 0">₹13,920</div><div style="font-size:11px;color:#BE123C;font-weight:800">58%</div></div><div class="card" style="padding:16px"><div style="font-size:11px;color:#64748B;font-weight:700">Net deficit</div><div class="tabular" style="font-size:24px;font-weight:800;margin:6px 0">−₹4,200</div><div style="font-size:11px;color:#BE123C;font-weight:800">Contracting</div></div>
+      </div>
+      <div class="card" style="padding:18px;display:flex;justify-content:space-between;align-items:center">
+        <div><b>Apply 60-Day EMI Pause on Machinery Loan</b><div style="font-size:13px;color:#64748B">Freeze ₹1,200 / mo · zero late fee · no bureau mark in this demo</div></div>
+        <div style="background:var(--navy-deep);color:#fff;padding:12px 16px;border-radius:12px;font-weight:800">Apply 1-Tap Relief</div>
+      </div></div></div></div></body></html>

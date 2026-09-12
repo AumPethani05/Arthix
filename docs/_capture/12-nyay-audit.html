@@ -1,0 +1,83 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+:root {
+  --canvas:#F8F9FC; --ink:#0F172A; --muted:#475569; --faint:#94A3B8;
+  --navy:#0F2042; --navy-deep:#08132B; --navy-rich:#1E3A8A;
+  --azure:#1D4ED8; --emerald:#0F766E; --emerald-b:#10B981;
+  --terracotta:#C2410C; --amber:#B45309; --vermilion:#BE123C;
+  --line:#E2E8F0; --soft-em:#F0FDF4; --soft-az:#EFF6FF; --soft-ve:#FFF1F2; --soft-am:#FFFBEB;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; padding:0; background:var(--canvas); color:var(--ink);
+  font-family:'Space Grotesk',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+.tabular { font-variant-numeric:tabular-nums; }
+.mono { font-family:'JetBrains Mono',monospace; }
+button { font-family:inherit; }
+.card { background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:0 4px 24px rgba(15,32,66,.06); }
+.pill { display:inline-flex; align-items:center; gap:6px; border-radius:999px; font-weight:800; font-size:11px; padding:5px 10px; }
+.app { display:flex; min-height:100vh; }
+.side { width:280px; background:#fff; border-right:1px solid var(--line); padding:22px 16px; display:flex; flex-direction:column; }
+.brand { display:flex; align-items:center; gap:10px; padding:0 8px 18px; border-bottom:1px solid var(--line); margin-bottom:14px; }
+.brand img { width:40px; height:40px; }
+.brand b { display:block; font-size:18px; color:var(--navy-deep); letter-spacing:-.02em; }
+.brand span { font-size:10px; color:var(--azure); font-weight:800; letter-spacing:.08em; }
+.navbtn { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:6px; }
+.navbtn.active { background:var(--navy-deep); color:#fff; }
+.main { flex:1; display:flex; flex-direction:column; min-width:0; }
+.top { height:72px; background:rgba(255,255,255,.9); border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 28px; }
+.page { padding:28px 32px 40px; }
+</style></head>
+  <body><div class="app" style="min-height:900px">
+  <aside class="side">
+    <div class="brand">
+      <img src="../../public/arthix-logo.svg" alt="ARTHIX" />
+      <div><b>ARTHIX</b><span>BHARAT CORE AI</span></div>
+    </div>
+    <div class="navbtn ">Dashboard Overview</div><div class="navbtn ">Sahara Debt Shield</div><div class="navbtn ">Vivek Decision Engine</div><div class="navbtn ">JeevanChakra Wealth</div><div class="navbtn ">BhashaSahayak Voice</div><div class="navbtn ">Kavach AA Consent</div><div class="navbtn active">Nyay Explainable Audit</div>
+    <div class="card" style="margin-top:auto;padding:14px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800">
+        <span>State Bank of India</span>
+        <span class="pill" style="background:#F0FDF4;color:#0F766E">Live Synced</span>
+      </div>
+      <div style="font-size:11px;color:#64748B;margin-top:4px">A/C •••• 4218 (Demo ledger)</div>
+    </div>
+  </aside><div class="main">
+  <header class="top">
+    <div class="pill" style="background:var(--canvas);border:1px solid var(--line);color:var(--ink)">
+      <span style="width:8px;height:8px;border-radius:50%;background:#10B981;display:inline-block"></span>
+      Vivek Guard Active
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div style="background:var(--canvas);border:1px solid var(--line);border-radius:14px;padding:4px">
+        <span style="padding:6px 10px;border-radius:10px;background:#fff;font-weight:800">Rahul</span>
+        <span style="padding:6px 10px;border-radius:10px;color:#64748B">Kamala</span>
+      </div>
+      <div style="background:var(--canvas);border:1px solid var(--line);border-radius:14px;padding:4px">
+        <span style="padding:6px 10px;border-radius:10px;background:var(--navy-deep);color:#fff;font-weight:800">Eng</span>
+        <span style="padding:6px 10px;color:#64748B">हिंदी</span>
+        <span style="padding:6px 10px;color:#64748B">ગુજ</span>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;font-weight:800">Rahul Sharma</div>
+        <div style="font-size:10px;color:#64748B">Tier-2 Salaried</div>
+      </div>
+    </div>
+  </header><div class="page">
+      <div class="pill" style="background:#EEF2FF;color:#1E3A8A">NYAY · Runtime guardrail</div>
+      <h1 style="margin:8px 0 16px;font-size:30px;color:var(--navy-deep)">Why this? Inspectable decision trail</h1>
+      <div class="card" style="padding:22px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div><div class="mono" style="font-size:12px;color:#64748B">AUDIT #BRT-AUD-2026-90412</div><b>Deterministic Decision Log: RECOMMEND</b></div>
+          <span class="pill" style="background:#F0FDF4;color:#0F766E">PASSED FIDUCIARY INTEGRITY CHECK</span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <tr style="text-align:left;color:#64748B;font-size:11px;letter-spacing:.06em">
+            <th style="padding:10px 8px;border-bottom:1px solid var(--line)">PARAMETER</th>
+            <th style="padding:10px 8px;border-bottom:1px solid var(--line)">VALUE</th>
+            <th style="padding:10px 8px;border-bottom:1px solid var(--line)">GUARDRAIL</th>
+            <th style="padding:10px 8px;border-bottom:1px solid var(--line)">RESULT</th>
+          </tr>
+          <tr><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">Emergency runway</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">3.2 months</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">≥ 3.0 months</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:800;color:#0F766E">PASS</td></tr><tr><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">Debt-to-inflow</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">16.3%</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">< 35%</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:800;color:#0F766E">PASS</td></tr><tr><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">Commission load</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">0.00%</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">Direct plan only</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:800;color:#0F766E">PASS</td></tr><tr><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">Personalization consent</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">AUTHORIZED</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:600;color:inherit">Purpose granted</td><td style="padding:12px 8px;border-bottom:1px solid var(--line);font-weight:800;color:#0F766E">PASS</td></tr>
+        </table>
+        <p style="font-size:13px;color:#64748B;margin:16px 0 0">This decision contains no neural-network override. Stress, leverage, or revoked consent would have suppressed the product.</p>
+      </div></div></div></div></body></html>

@@ -1,0 +1,43 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+:root {
+  --canvas:#F8F9FC; --ink:#0F172A; --muted:#475569; --faint:#94A3B8;
+  --navy:#0F2042; --navy-deep:#08132B; --navy-rich:#1E3A8A;
+  --azure:#1D4ED8; --emerald:#0F766E; --emerald-b:#10B981;
+  --terracotta:#C2410C; --amber:#B45309; --vermilion:#BE123C;
+  --line:#E2E8F0; --soft-em:#F0FDF4; --soft-az:#EFF6FF; --soft-ve:#FFF1F2; --soft-am:#FFFBEB;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; padding:0; background:var(--canvas); color:var(--ink);
+  font-family:'Space Grotesk',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+.tabular { font-variant-numeric:tabular-nums; }
+.mono { font-family:'JetBrains Mono',monospace; }
+button { font-family:inherit; }
+.card { background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:0 4px 24px rgba(15,32,66,.06); }
+.pill { display:inline-flex; align-items:center; gap:6px; border-radius:999px; font-weight:800; font-size:11px; padding:5px 10px; }
+.app { display:flex; min-height:100vh; }
+.side { width:280px; background:#fff; border-right:1px solid var(--line); padding:22px 16px; display:flex; flex-direction:column; }
+.brand { display:flex; align-items:center; gap:10px; padding:0 8px 18px; border-bottom:1px solid var(--line); margin-bottom:14px; }
+.brand img { width:40px; height:40px; }
+.brand b { display:block; font-size:18px; color:var(--navy-deep); letter-spacing:-.02em; }
+.brand span { font-size:10px; color:var(--azure); font-weight:800; letter-spacing:.08em; }
+.navbtn { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:6px; }
+.navbtn.active { background:var(--navy-deep); color:#fff; }
+.main { flex:1; display:flex; flex-direction:column; min-width:0; }
+.top { height:72px; background:rgba(255,255,255,.9); border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 28px; }
+.page { padding:28px 32px 40px; }
+ body{display:flex;justify-content:center;padding:24px}</style></head><body>
+      <div class="card" style="width:400px;padding:22px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><img src="../../public/arthix-logo.svg" width="72" /><b>Consent manager</b></div>
+        <div style="background:var(--canvas);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px">
+          <div class="pill" style="background:#EFF6FF;color:#1D4ED8">Purpose-level consent</div>
+          <h2 style="margin:8px 0 6px">Your data, your rules · आपकी अनुमति</h2>
+          <p style="margin:0;font-size:13px;color:#64748B">Pause, review, or revoke at any time. Transaction analysis is not the same purpose as personalization.</p>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <b>Granular data permissions</b><span class="pill" style="background:#F0FDF4;color:#0F766E">3 of 3 active</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)"><div style="font-size:13px;font-weight:700">Transaction categorisation & spends</div><div style="width:40px;height:22px;background:var(--navy);border-radius:99px;position:relative"><div style="width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;right:3px;top:3px"></div></div></div><div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)"><div style="font-size:13px;font-weight:700">Income & salary regularity</div><div style="width:40px;height:22px;background:var(--navy);border-radius:99px;position:relative"><div style="width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;right:3px;top:3px"></div></div></div><div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)"><div style="font-size:13px;font-weight:700">Active EMI & credit load</div><div style="width:40px;height:22px;background:var(--navy);border-radius:99px;position:relative"><div style="width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;right:3px;top:3px"></div></div></div>
+        <div style="margin-top:16px;background:var(--navy);color:#fff;border-radius:12px;padding:14px;text-align:center;font-weight:800">Allow personalisation (अनुमति दें)</div>
+      </div>
+    </body></html>
