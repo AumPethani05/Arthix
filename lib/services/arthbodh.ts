@@ -1,4 +1,5 @@
 import { db } from "../db";
+import { calculateSaharaStress } from "./sahara";
 
 export interface SpendingMix {
   essential: number;
@@ -273,20 +274,21 @@ export function calculateArthBodhMetrics(
     }
   }
 
-  // 7. Stress Assessment
-  let stressScore = 15;
-  let stressBand: "LOW" | "MEDIUM" | "HIGH" = "LOW";
+  // 7. Stress Assessment (Sahara Engine)
+  const saharaAssessment = calculateSaharaStress(
+    txs,
+    {
+      incomeEst,
+      essentialSpends,
+      emiLoad,
+      surplus,
+      surplusTrend,
+    },
+    totalBalance
+  );
 
-  if (dtiRatio > 0.45 || surplus < 0) {
-    stressScore = 82;
-    stressBand = "HIGH";
-  } else if (dtiRatio > 0.30 || runwayMonths < 2.0 || surplus < 2000) {
-    stressScore = 55;
-    stressBand = "MEDIUM";
-  } else {
-    stressScore = Math.max(10, Math.min(25, Math.round(dtiRatio * 100)));
-    stressBand = "LOW";
-  }
+  const stressScore = saharaAssessment.score;
+  const stressBand = saharaAssessment.band;
 
   const segment = surplus > 10000 ? "SALARIED_SURPLUS" : (surplus < 0 ? "CASHFLOW_TIGHT" : "BUFFER_BUILDING");
 
