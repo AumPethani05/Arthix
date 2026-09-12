@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   TrendingUp,
   ShieldCheck,
@@ -23,10 +23,38 @@ import type { Lang } from "@/components/TopBar";
 interface WebJeevanChakraProps {
   lang: Lang;
   onOpenNyay: () => void;
+  activePersona?: "rahul" | "kamala";
 }
 
-export function WebJeevanChakra({ lang, onOpenNyay }: WebJeevanChakraProps) {
+export function WebJeevanChakra({ lang, onOpenNyay, activePersona = "rahul" }: WebJeevanChakraProps) {
   const [expandedComparison, setExpandedComparison] = useState(true);
+  const [decisionData, setDecisionData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/v1/recommendations?persona=${activePersona}`)
+      .then((res) => res.json())
+      .then((data) => setDecisionData(data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, [activePersona]);
+
+  const handleStartSip = (productId: string = "prod-nifty50-sip") => {
+    fetch(`/api/v1/recommendations/${productId}/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ persona: activePersona, choice: "ACCEPTED" }),
+    }).catch((err) => console.error(err));
+
+    if (typeof window !== "undefined") {
+      const el = document.getElementById("sip-confirm-toast");
+      if (el) {
+        el.classList.remove("opacity-0");
+        setTimeout(() => el.classList.add("opacity-0"), 3000);
+      }
+    }
+  };
 
   const c = {
     en: {
@@ -180,63 +208,98 @@ export function WebJeevanChakra({ lang, onOpenNyay }: WebJeevanChakraProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Primary Recommendation & Trajectory (7 cols) */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          {/* Primary Recommendation Card */}
-          <div className="glass-card rounded-2xl p-6 sm:p-7 flex flex-col gap-5 border-t-4 border-t-azure">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <span className="text-xs uppercase font-extrabold text-azure tracking-wider">
-                  {c.optimal}
-                </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-ink mt-1">
-                  {c.sipTitle}
-                </h2>
-              </div>
-              <span className="bg-emerald-soft text-emerald text-xs font-extrabold px-3 py-1 rounded-full shrink-0">
-                {c.sipMatch}
-              </span>
-            </div>
-
-            {/* Quantitative Deployment Figure */}
-            <div className="bg-canvas p-5 rounded-xl border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <span className="text-xs text-ink-muted">{c.deployment}</span>
-                <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-3xl font-extrabold text-navy-deep font-tabular">₹3,000</span>
-                  <span className="text-xs text-ink-muted">/ month</span>
+          {/* Primary Recommendation Card: Respects Deterministic Decision State */}
+          {(decisionData?.action === "SUPPRESS" || decisionData?.action === "ASSIST_FIRST") ? (
+            <div className="glass-card rounded-2xl p-6 sm:p-7 flex flex-col gap-5 border-t-4 border-t-vermilion">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className="text-xs uppercase font-extrabold text-vermilion tracking-wider flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4" />
+                    INTENTIONAL FIDUCIARY SUPPRESSION ACTIVE
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-bold text-ink mt-1">
+                    Credit Solicitations Suppressed Under Fiduciary Policy
+                  </h2>
                 </div>
-                <p className="text-xs text-ink-muted mt-1">
-                  Consumes <strong>19.8%</strong> {c.surplus}
-                </p>
+                <span className="bg-vermilion-soft text-vermilion text-xs font-extrabold px-3 py-1 rounded-full shrink-0">
+                  Code: {decisionData?.ruleCode || "RULE_PREDATORY_SUPPRESSION_GUARANTEE_V1"}
+                </span>
               </div>
-              <div className="flex flex-col gap-2 shrink-0">
-                <button
-                  className="bg-navy-deep hover:bg-navy-rich text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all"
-                  onClick={() => {
-                    if (typeof window !== "undefined") {
-                      const el = document.getElementById("sip-confirm-toast");
-                      if (el) {
-                        el.classList.remove("opacity-0");
-                        setTimeout(() => el.classList.add("opacity-0"), 3000);
-                      }
-                    }
-                  }}
-                >
-                  {c.startSip}
-                </button>
-                <button onClick={onOpenNyay} className="text-azure text-xs font-semibold hover:underline flex items-center justify-center gap-1">
-                  <HelpCircle className="w-3.5 h-3.5" />
-                  {c.whyThis}
-                </button>
-              </div>
-            </div>
 
-            <div className="flex flex-col gap-2.5 text-xs text-ink-muted">
-              <span className="font-bold text-ink text-xs uppercase tracking-wide">{c.guardrails}</span>
-              <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>{c.g1}</span></div>
-              <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>{c.g2}</span></div>
-              <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>{c.g3}</span></div>
+              <div className="bg-canvas p-5 rounded-xl border border-line flex flex-col gap-3">
+                <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
+                  {lang === "hi" && decisionData?.explanationHi
+                    ? decisionData.explanationHi
+                    : lang === "gu" && decisionData?.explanationGu
+                    ? decisionData.explanationGu
+                    : decisionData?.explanationEn || "Under ARTHIX constitutional fiduciary rules (§4-5), new credit recommendations are intentionally withheld when the customer is experiencing financial stress. In this state, priority shifts entirely to cashflow assistance and debt defense via Sahara."}
+                </p>
+                <div className="flex items-center justify-between pt-2 border-t border-line text-xs">
+                  <span className="text-ink-muted">Mandate: RBI Digital Lending Guidelines 2022 §3(B)</span>
+                  <button onClick={onOpenNyay} className="text-azure font-bold hover:underline flex items-center gap-1">
+                    <HelpCircle className="w-3.5 h-3.5" />
+                    {c.whyThis}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2.5 text-xs text-ink-muted">
+                <span className="font-bold text-ink text-xs uppercase tracking-wide">Protective Guardrails Enforced:</span>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>Zero predatory credit marketing — no loans pushed during cashflow shortfall.</span></div>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>Capital preservation prioritized before wealth accumulation.</span></div>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>Sahara 1-tap debt relief active to halt EMIs without CIBIL impact.</span></div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="glass-card rounded-2xl p-6 sm:p-7 flex flex-col gap-5 border-t-4 border-t-azure">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <span className="text-xs uppercase font-extrabold text-azure tracking-wider">
+                    {c.optimal}
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-bold text-ink mt-1">
+                    {decisionData?.candidateProduct?.name ? `${c.sipTitle}: ${decisionData.candidateProduct.name}` : c.sipTitle}
+                  </h2>
+                </div>
+                <span className="bg-emerald-soft text-emerald text-xs font-extrabold px-3 py-1 rounded-full shrink-0">
+                  {decisionData?.confidence ? `${Math.round(decisionData.confidence * 100)}% Suitability Match` : c.sipMatch}
+                </span>
+              </div>
+
+              {/* Quantitative Deployment Figure */}
+              <div className="bg-canvas p-5 rounded-xl border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-xs text-ink-muted">{c.deployment}</span>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <span className="text-3xl font-extrabold text-navy-deep font-tabular">₹3,000</span>
+                    <span className="text-xs text-ink-muted">/ month</span>
+                  </div>
+                  <p className="text-xs text-ink-muted mt-1">
+                    Consumes <strong>19.8%</strong> {c.surplus}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 shrink-0">
+                  <button
+                    className="bg-navy-deep hover:bg-navy-rich text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all"
+                    onClick={() => handleStartSip(decisionData?.candidateProduct?.id || "prod-nifty50-sip")}
+                  >
+                    {c.startSip}
+                  </button>
+                  <button onClick={onOpenNyay} className="text-azure text-xs font-semibold hover:underline flex items-center justify-center gap-1">
+                    <HelpCircle className="w-3.5 h-3.5" />
+                    {c.whyThis}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2.5 text-xs text-ink-muted">
+                <span className="font-bold text-ink text-xs uppercase tracking-wide">{c.guardrails}</span>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>{c.g1}</span></div>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>{c.g2}</span></div>
+                <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald shrink-0" /><span>{c.g3}</span></div>
+              </div>
+            </div>
+          )}
 
           <div className="glass-card rounded-2xl p-6 flex flex-col gap-4">
             <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedComparison(!expandedComparison)}>

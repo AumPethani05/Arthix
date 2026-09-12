@@ -113,7 +113,7 @@ export default function LoginPage() {
     inputRefs.current[5]?.focus();
   };
 
-  const handleVerifyOtp = () => {
+  const handleVerifyOtp = async () => {
     const fullOtp = otpVal.join("");
     if (fullOtp.length !== 6) {
       setOtpError("Please enter all 6 digits of the OTP");
@@ -121,23 +121,68 @@ export default function LoginPage() {
     }
     setOtpError("");
     setLoading(true);
-    setTimeout(() => {
-      router.push("/app?persona=rahul");
-    }, 500);
+    try {
+      const res = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ persona: "rahul" }),
+      });
+      const data = await res.json();
+      if (typeof window !== "undefined") {
+        if (data.token) localStorage.setItem("arthix_token", data.token);
+        if (data.user) localStorage.setItem("arthix_user", JSON.stringify(data.user));
+      }
+      router.push("/consent?persona=rahul");
+    } catch (err) {
+      console.error("OTP login error:", err);
+      router.push("/consent?persona=rahul");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handlePersonaLogin = (persona: "kamala" | "rahul") => {
+  const handlePersonaLogin = async (persona: "kamala" | "rahul") => {
     setLoadingPersona(persona);
-    setTimeout(() => {
-      router.push(`/app?persona=${persona}`);
-    }, 450);
+    try {
+      const res = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ persona }),
+      });
+      const data = await res.json();
+      if (typeof window !== "undefined") {
+        if (data.token) localStorage.setItem("arthix_token", data.token);
+        if (data.user) localStorage.setItem("arthix_user", JSON.stringify(data.user));
+      }
+      router.push(`/consent?persona=${persona}`);
+    } catch (err) {
+      console.error("Persona login error:", err);
+      router.push(`/consent?persona=${persona}`);
+    } finally {
+      setLoadingPersona(null);
+    }
   };
 
-  const handleDigiLockerLogin = () => {
+  const handleDigiLockerLogin = async () => {
     setLoading(true);
-    setTimeout(() => {
-      router.push("/app?persona=kamala");
-    }, 600);
+    try {
+      const res = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ persona: "kamala" }),
+      });
+      const data = await res.json();
+      if (typeof window !== "undefined") {
+        if (data.token) localStorage.setItem("arthix_token", data.token);
+        if (data.user) localStorage.setItem("arthix_user", JSON.stringify(data.user));
+      }
+      router.push("/consent?persona=kamala");
+    } catch (err) {
+      console.error("DigiLocker login error:", err);
+      router.push("/consent?persona=kamala");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

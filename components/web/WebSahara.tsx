@@ -49,6 +49,10 @@ export function WebSahara({ lang, activePersona }: WebSaharaProps) {
       .then(() => {
         setApplied(true);
         setModalOpen(false);
+        fetch(`/api/v1/wellness?persona=${activePersona}`)
+          .then((r) => r.json())
+          .then((w) => setWellnessData(w))
+          .catch((e) => console.error(e));
       })
       .catch((err) => console.error(err));
   };
@@ -364,13 +368,13 @@ export function WebSahara({ lang, activePersona }: WebSaharaProps) {
                 fill="none"
                 r="50"
                 strokeWidth="10"
-                strokeDasharray={`${isStress ? 131.9 : 232.5} 314.159`}
+                strokeDasharray={`${Math.round(((wellnessData?.stressScore ?? (isStress ? 82 : 18)) / 100) * 314.159)} 314.159`}
                 strokeLinecap="round"
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
               <span className="text-4xl font-extrabold text-navy-deep font-tabular">
-                {isStress ? "42" : "74"}
+                {wellnessData?.stressScore ?? (isStress ? "82" : "18")}
                 <span className="text-base font-normal text-ink-muted">/100</span>
               </span>
               <span
@@ -385,7 +389,7 @@ export function WebSahara({ lang, activePersona }: WebSaharaProps) {
 
           <p className="text-xs sm:text-sm text-ink-muted text-center px-3 leading-relaxed">
             {isStress
-              ? "Financial health score fell by 14 points following delayed invoice clearance from Gujarat State Khadi Board."
+              ? (wellnessData?.factors?.[0] || "Financial health score indicates cashflow strain due to delayed craft receivables.")
               : "Financial health score is stable with a healthy 3.2-month reserve."}
           </p>
 
@@ -402,7 +406,7 @@ export function WebSahara({ lang, activePersona }: WebSaharaProps) {
               </div>
               <div className="text-right">
                 <span className="font-extrabold text-ink font-tabular text-sm sm:text-base">
-                  {isStress ? "₹24,000" : "₹52,000"}
+                  ₹{(wellnessData?.cashFlowAudit?.monthlyInflow ?? (isStress ? 24000 : 52000)).toLocaleString("en-IN")}
                 </span>
                 <span className="block text-xs text-vermilion font-medium">
                   {isStress ? "-18% delayed" : "+20% stable"}
@@ -417,7 +421,7 @@ export function WebSahara({ lang, activePersona }: WebSaharaProps) {
               </div>
               <div className="text-right">
                 <span className="font-bold text-ink font-tabular text-sm sm:text-base">
-                  {isStress ? "₹14,200" : "₹28,400"}
+                  ₹{(wellnessData?.cashFlowAudit?.essentials ?? (isStress ? 14200 : 28400)).toLocaleString("en-IN")}
                 </span>
               </div>
             </div>
@@ -429,7 +433,7 @@ export function WebSahara({ lang, activePersona }: WebSaharaProps) {
               </div>
               <div className="text-right">
                 <span className="font-extrabold text-vermilion font-tabular text-sm sm:text-base">
-                  {isStress ? "₹13,920" : "₹8,500"}
+                  ₹{(wellnessData?.cashFlowAudit?.committedEmis ?? (isStress ? 13920 : 8500)).toLocaleString("en-IN")}
                 </span>
                 <span className="block text-xs text-vermilion font-semibold">
                   {isStress ? "58% Outflow (2 Loans)" : "16% Outflow"}
@@ -443,7 +447,9 @@ export function WebSahara({ lang, activePersona }: WebSaharaProps) {
                 <span>{c.monthlyDeficit}</span>
               </div>
               <span className="text-base sm:text-lg font-extrabold text-vermilion font-tabular">
-                {isStress ? "-₹4,120" : "+₹15,120"}
+                {(wellnessData?.cashFlowAudit?.monthlyDeficit ?? (isStress ? -4120 : 15120)) >= 0
+                  ? `+₹${(wellnessData?.cashFlowAudit?.monthlyDeficit ?? (isStress ? -4120 : 15120)).toLocaleString("en-IN")}`
+                  : `-₹${Math.abs(wellnessData?.cashFlowAudit?.monthlyDeficit ?? (isStress ? -4120 : 15120)).toLocaleString("en-IN")}`}
               </span>
             </div>
           </div>
@@ -665,10 +671,7 @@ export function WebSahara({ lang, activePersona }: WebSaharaProps) {
                 {c.cancel}
               </button>
               <button
-                onClick={() => {
-                  setApplied(true);
-                  setModalOpen(false);
-                }}
+                onClick={handleApplyRelief}
                 className="px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-extrabold bg-emerald hover:bg-emerald-deep text-white shadow-lg transition-all"
               >
                 {c.confirm1Tap}

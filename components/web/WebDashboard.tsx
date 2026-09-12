@@ -31,17 +31,32 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
   const [showBalance, setShowBalance] = useState(true);
   const [profileData, setProfileData] = useState<any>(null);
   const [decisionData, setDecisionData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/v1/me/profile?persona=${activePersona}`)
-      .then((res) => res.json())
-      .then((data) => setProfileData(data))
-      .catch((err) => console.error(err));
+    setLoading(true);
+    setFetchError(null);
 
-    fetch(`/api/v1/recommendations?persona=${activePersona}`)
-      .then((res) => res.json())
-      .then((data) => setDecisionData(data))
-      .catch((err) => console.error(err));
+    Promise.all([
+      fetch(`/api/v1/me/profile?persona=${activePersona}`).then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch profile");
+        return res.json();
+      }),
+      fetch(`/api/v1/recommendations?persona=${activePersona}`).then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch recommendations");
+        return res.json();
+      }),
+    ])
+      .then(([profile, decision]) => {
+        setProfileData(profile);
+        setDecisionData(decision);
+      })
+      .catch((err) => {
+        console.error("Dashboard fetch error:", err);
+        setFetchError(err.message || "Failed to load real-time intelligence");
+      })
+      .finally(() => setLoading(false));
   }, [activePersona]);
 
   // Content localized based on lang
@@ -120,6 +135,66 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
     },
   }[lang];
 
+  const liquidBal = profileData?.accounts?.[0]?.balance ?? (activePersona === "rahul" ? 64820 : 18400);
+  const inflow = profileData?.income ?? (activePersona === "rahul" ? 52000 : 24000);
+  const emiAmount = profileData?.emiOutflow ?? (activePersona === "rahul" ? 8500 : 13920);
+  const emiPct = Math.round((emiAmount / (inflow || 1)) * 100);
+  const surplus = profileData?.surplus ?? (activePersona === "rahul" ? 15120 : -4120);
+  const runway = profileData?.runwayMonths ?? (activePersona === "rahul" ? 3.2 : 1.4);
+  const essentialSpends = profileData?.essentialSpends ?? (activePersona === "rahul" ? 28400 : 14200);
+
+  const action = decisionData?.action || decisionData?.decision || (activePersona === "rahul" ? "RECOMMEND" : "ASSIST_FIRST");
+  const ruleCode = decisionData?.ruleCode || (action === "SUPPRESS" ? "RULE_PREDATORY_SUPPRESSION_GUARANTEE_V1" : action === "RECOMMEND" ? "RULE_EXPANSION_STABLE_SURPLUS_V4" : "RULE_STRESS_ASSIST_FIRST_V1");
+  const headline = decisionData?.headline || t.heroTitle;
+  const description = (lang === "hi" ? decisionData?.explanationHi : lang === "gu" ? decisionData?.explanationGu : decisionData?.explanationEn) || decisionData?.subline || t.heroDesc;
+
+  const getDecisionBadge = () => {
+    switch (action) {
+      case "RECOMMEND":
+        return {
+          label: "RECOMMEND",
+          sub: "Approved Fiduciary Expansion",
+          color: "bg-emerald text-white",
+          targetTab: "jeevanchakra",
+          cta: activePersona === "rahul" ? t.heroPrimaryCta : "Review Recommendation",
+        };
+      case "ASSIST_FIRST":
+        return {
+          label: "ASSIST_FIRST",
+          sub: "Priority Fiduciary Care",
+          color: "bg-vermilion text-white",
+          targetTab: "sahara",
+          cta: lang === "hi" ? "1-क्लिक ईएमआई राहत" : lang === "gu" ? "૧-ટેપ ઇએમઆઈ રાહત" : "Apply 1-Tap Relief",
+        };
+      case "SUPPRESS":
+        return {
+          label: "SUPPRESS",
+          sub: "Intentional Debt Shield Active",
+          color: "bg-amber-600 text-white",
+          targetTab: "sahara",
+          cta: lang === "hi" ? "सुरक्षा विवरण देखें" : lang === "gu" ? "સુરક્ષા વિગતો જુઓ" : "Inspect Protective Shield",
+        };
+      case "VERIFY":
+        return {
+          label: "VERIFY",
+          sub: "Verification Pending",
+          color: "bg-azure text-white",
+          targetTab: "consent",
+          cta: "Verify with Kavach",
+        };
+      default:
+        return {
+          label: action,
+          sub: "Sovereign Intelligence",
+          color: "bg-azure text-white",
+          targetTab: "vivek",
+          cta: "Inspect Decision",
+        };
+    }
+  };
+
+  const decisionBadge = getDecisionBadge();
+
   return (
     <div className="flex flex-col gap-8 w-full max-w-7xl mx-auto pb-16">
       {/* Top Banner & Institutional Context */}
@@ -148,7 +223,7 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
           </div>
         </div>
 
-        {/* 3 Metric Cards Grid (Generous Size) */}
+        {/* 3 Metric Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
           {/* Metric 1 */}
           <div className="glass-card rounded-2xl p-6 sm:p-7 border border-line flex flex-col justify-between relative overflow-hidden group hover:border-azure transition-all shadow-sm">
@@ -166,16 +241,16 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
             </div>
             <div className="my-4">
               <span className="text-4xl sm:text-5xl font-extrabold text-navy-deep font-tabular">
-                {showBalance ? (activePersona === "rahul" ? "₹64,820" : "₹18,400") : "••••••••"}
+                {showBalance ? `₹${liquidBal.toLocaleString("en-IN")}` : "••••••••"}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs sm:text-sm text-ink-muted pt-3 border-t border-line">
               <span className="flex items-center gap-1.5">
-                Inflow: <strong className="text-ink font-tabular">₹52,000</strong>
-                <span className="text-emerald font-bold">(+20%)</span>
+                Inflow: <strong className="text-ink font-tabular">₹{inflow.toLocaleString("en-IN")}</strong>
+                <span className="text-emerald font-bold">{surplus >= 0 ? "(+20%)" : "(-18%)"}</span>
               </span>
               <span>
-                Spends: <strong className="text-ink font-tabular">₹28,400</strong>
+                Spends: <strong className="text-ink font-tabular">₹{essentialSpends.toLocaleString("en-IN")}</strong>
               </span>
             </div>
           </div>
@@ -188,32 +263,32 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
               </span>
               <span
                 className={`text-xs px-3 py-1 rounded-full font-extrabold ${
-                  activePersona === "rahul"
+                  emiPct <= 35
                     ? "bg-emerald-soft text-emerald"
                     : "bg-vermilion-soft text-vermilion"
                 }`}
               >
-                {activePersona === "rahul" ? "Safe Zone (<35%)" : "High Stress (58%)"}
+                {emiPct <= 35 ? `Safe Zone (${emiPct}%)` : `High Stress (${emiPct}%)`}
               </span>
             </div>
             <div className="my-4">
               <span className="text-4xl sm:text-5xl font-extrabold text-navy-deep font-tabular">
-                {activePersona === "rahul" ? "₹8,500" : "₹13,920"}
+                ₹{emiAmount.toLocaleString("en-IN")}
                 <span className="text-base font-normal text-ink-muted">/mo</span>
               </span>
             </div>
             <div className="flex flex-col gap-2 pt-3 border-t border-line">
               <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
                 <div
-                  className={`h-2.5 rounded-full ${
-                    activePersona === "rahul" ? "bg-emerald" : "bg-vermilion"
+                  className={`h-2.5 rounded-full transition-all duration-500 ${
+                    emiPct <= 35 ? "bg-emerald" : "bg-vermilion"
                   }`}
-                  style={{ width: activePersona === "rahul" ? "16.3%" : "58%" }}
+                  style={{ width: `${Math.min(100, emiPct)}%` }}
                 />
               </div>
               <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-ink-muted font-medium">
-                  {activePersona === "rahul" ? "16.3% of Net Inflow" : "58% of Net Inflow"}
+                  {emiPct}% of Net Inflow
                 </span>
                 <button
                   onClick={() => onNavigateTab("sahara")}
@@ -231,29 +306,29 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
               <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-ink-muted">
                 {t.netSurplus}
               </span>
-              <span className="text-xs px-3 py-1 rounded-full font-extrabold bg-azure-soft text-azure">
-                {activePersona === "rahul" ? "Disciplined Float" : "Deficit Warning"}
+              <span className={`text-xs px-3 py-1 rounded-full font-extrabold ${surplus >= 0 ? "bg-azure-soft text-azure" : "bg-vermilion-soft text-vermilion"}`}>
+                {surplus >= 0 ? "Disciplined Float" : "Deficit Warning"}
               </span>
             </div>
             <div className="my-4">
               <span
                 className={`text-4xl sm:text-5xl font-extrabold font-tabular ${
-                  activePersona === "rahul" ? "text-emerald" : "text-vermilion"
+                  surplus >= 0 ? "text-emerald" : "text-vermilion"
                 }`}
               >
-                {activePersona === "rahul" ? "₹15,120" : "-₹4,120"}
+                {surplus >= 0 ? `₹${surplus.toLocaleString("en-IN")}` : `-₹${Math.abs(surplus).toLocaleString("en-IN")}`}
               </span>
             </div>
             <div className="flex items-center justify-between text-xs sm:text-sm pt-3 border-t border-line">
               <span className="text-ink-muted flex items-center gap-1.5 font-medium">
-                <CheckCircle2 className="w-4 h-4 text-emerald" />
-                {activePersona === "rahul" ? "Buffer readiness: 100%" : "Buffer deficit"}
+                <CheckCircle2 className={`w-4 h-4 ${surplus >= 0 ? "text-emerald" : "text-vermilion"}`} />
+                {surplus >= 0 ? "Buffer readiness: 100%" : "Buffer deficit"}
               </span>
               <button
-                onClick={() => onNavigateTab(activePersona === "rahul" ? "jeevanchakra" : "sahara")}
+                onClick={() => onNavigateTab(surplus >= 0 ? "jeevanchakra" : "sahara")}
                 className="text-azure font-extrabold hover:underline"
               >
-                {activePersona === "rahul" ? "Deploy in SIP" : "Request Moratorium"}
+                {surplus >= 0 ? "Deploy in SIP" : "Request Moratorium"}
               </button>
             </div>
           </div>
@@ -269,21 +344,21 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="flex flex-col gap-4 max-w-2xl">
             <div className="flex items-center gap-3 flex-wrap">
-              <span className="bg-azure px-3.5 py-1.5 rounded-full text-xs font-extrabold tracking-wider uppercase flex items-center gap-2 shadow-sm">
+              <span className={`${decisionBadge.color} px-3.5 py-1.5 rounded-full text-xs font-extrabold tracking-wider uppercase flex items-center gap-2 shadow-sm`}>
                 <Sparkles className="w-4 h-4" />
-                {t.heroBadge}
+                {decisionBadge.label} • {decisionBadge.sub}
               </span>
               <span className="bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-semibold text-white/95 flex items-center gap-2 border border-white/20">
                 <ShieldCheck className="w-4 h-4 text-emerald-bright" />
-                {t.zeroCommission}
+                Rule: {ruleCode}
               </span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-snug">
-              {t.heroTitle}
+              {headline}
             </h2>
 
-            <p className="text-sm sm:text-base text-slate-200 leading-relaxed">{t.heroDesc}</p>
+            <p className="text-sm sm:text-base text-slate-200 leading-relaxed">{description}</p>
 
             <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
               <Lock className="w-4 h-4 text-emerald-bright" />
@@ -293,10 +368,10 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
 
           <div className="flex flex-col sm:flex-row lg:flex-col gap-4 shrink-0">
             <button
-              onClick={() => onNavigateTab(activePersona === "rahul" ? "jeevanchakra" : "sahara")}
+              onClick={() => onNavigateTab(decisionBadge.targetTab)}
               className="bg-white hover:bg-slate-50 text-navy-deep px-7 py-4 rounded-2xl font-extrabold text-sm sm:text-base shadow-xl transition-all flex items-center justify-center gap-2.5 hover:scale-[1.02]"
             >
-              <span>{t.heroPrimaryCta}</span>
+              <span>{decisionBadge.cta}</span>
               <ArrowUpRight className="w-4 h-4" />
             </button>
             <button
@@ -322,7 +397,7 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
             </div>
             <div className="flex items-center gap-2 bg-canvas px-4 py-2 rounded-full border border-line text-xs font-bold text-navy-rich">
               <ShieldCheck className="w-4 h-4 text-emerald" />
-              <span>{t.runwayMonths}</span>
+              <span>{runway} Months {runway >= 3.0 ? "Runway Secured" : "Tight Reserve"}</span>
             </div>
           </div>
 
@@ -330,18 +405,18 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
           <div className="bg-canvas p-5 rounded-2xl border border-line flex flex-col gap-3.5">
             <div className="flex justify-between items-center text-sm">
               <span className="text-ink-muted font-medium">
-                Threshold Requirement: <strong className="text-ink">3.0 Months (₹85,200)</strong>
+                Threshold Requirement: <strong className="text-ink">3.0 Months (₹{(essentialSpends * 3).toLocaleString("en-IN")})</strong>
               </span>
-              <span className="font-bold text-emerald font-tabular text-sm">
-                {activePersona === "rahul" ? "106% Met" : "48% Met"}
+              <span className={`font-bold font-tabular text-sm ${runway >= 3.0 ? "text-emerald" : "text-amber-600"}`}>
+                {Math.round((runway / 3.0) * 100)}% Met
               </span>
             </div>
             <div className="w-full bg-slate-200 rounded-full h-3.5 overflow-hidden">
               <div
                 className={`h-3.5 rounded-full transition-all duration-500 ${
-                  activePersona === "rahul" ? "bg-emerald" : "bg-amber"
+                  runway >= 3.0 ? "bg-emerald" : "bg-amber"
                 }`}
-                style={{ width: activePersona === "rahul" ? "100%" : "48%" }}
+                style={{ width: `${Math.min(100, Math.round((runway / 3.0) * 100))}%` }}
               />
             </div>
             <div className="flex justify-between text-xs text-ink-muted font-medium">
@@ -358,25 +433,25 @@ export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePerso
             <div className="bg-canvas p-4 rounded-2xl border border-line text-center">
               <span className="text-xs text-ink-muted font-semibold block">Essential Living</span>
               <span className="text-lg sm:text-xl font-extrabold text-ink font-tabular mt-1 block">
-                ₹28,400
+                ₹{essentialSpends.toLocaleString("en-IN")}
               </span>
               <span className="text-xs text-ink-muted">Rent, Ration, Utilities</span>
             </div>
             <div className="bg-canvas p-4 rounded-2xl border border-line text-center">
               <span className="text-xs text-ink-muted font-semibold block">Committed EMIs</span>
               <span className="text-lg sm:text-xl font-extrabold text-ink font-tabular mt-1 block">
-                {activePersona === "rahul" ? "₹8,500" : "₹13,920"}
+                ₹{emiAmount.toLocaleString("en-IN")}
               </span>
-              <span className="text-xs text-ink-muted">Bike Loan, Personal</span>
+              <span className="text-xs text-ink-muted">Active Loan Dues</span>
             </div>
             <div className="bg-canvas p-4 rounded-2xl border border-line text-center">
               <span className="text-xs text-ink-muted font-semibold block">Investable Float</span>
               <span
                 className={`text-lg sm:text-xl font-extrabold font-tabular mt-1 block ${
-                  activePersona === "rahul" ? "text-emerald" : "text-vermilion"
+                  surplus >= 0 ? "text-emerald" : "text-vermilion"
                 }`}
               >
-                {activePersona === "rahul" ? "₹15,120" : "-₹4,120"}
+                {surplus >= 0 ? `₹${surplus.toLocaleString("en-IN")}` : `-₹${Math.abs(surplus).toLocaleString("en-IN")}`}
               </span>
               <span className="text-xs text-ink-muted">Unrestricted Surplus</span>
             </div>

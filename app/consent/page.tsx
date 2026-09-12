@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,20 +10,69 @@ import {
 import { ConsentRow } from "@/components/ui";
 
 export default function ConsentPage() {
+  const [persona, setPersona] = useState<string>("rahul");
   const [activeCount, setActiveCount] = useState(3);
   const [termsOpen, setTermsOpen] = useState(false);
   const [auditOpen, setAuditOpen] = useState(false);
-
-  const handleToggle = (prevOn: boolean) => {
-    setActiveCount((c) => (prevOn ? c - 1 : c + 1));
-  };
-
-  const auditLog = [
+  const [auditLog, setAuditLog] = useState<any[]>([
     { ts: "12 Sep 2026, 09:41 AM", action: "Consent granted — Transaction categorisation", by: "User" },
     { ts: "12 Sep 2026, 09:41 AM", action: "Consent granted — Income & salary regularity", by: "User" },
     { ts: "12 Sep 2026, 09:41 AM", action: "Consent granted — Active EMI & credit load", by: "User" },
     { ts: "10 Sep 2026, 11:02 AM", action: "First SBI account linked via RBI AA", by: "System" },
-  ];
+  ]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const p = params.get("persona") || "rahul";
+      setPersona(p);
+
+      fetch(`/api/v1/consent?persona=${p}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.consents && data.consents.length > 0) {
+            setActiveCount(data.consents.filter((c: any) => c.active !== false).length);
+          }
+        })
+        .catch((err) => console.error(err));
+
+      fetch(`/api/v1/audit/me?persona=${p}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.events && data.events.length > 0) {
+            const formatted = data.events.map((ev: any) => ({
+              ts: ev.timestamp ? new Date(ev.timestamp).toLocaleString("en-IN") : "Recent",
+              action: `${ev.action || "Audit Event"} — ${ev.ruleCode || "Fiduciary Rule"}`,
+              by: ev.actor || "System",
+            }));
+            setAuditLog(formatted);
+          } else if (data.auditRecord) {
+            setAuditLog([
+              {
+                ts: data.auditRecord.timestamp ? new Date(data.auditRecord.timestamp).toLocaleString("en-IN") : "Recent",
+                action: `${data.auditRecord.decision} — ${data.auditRecord.reasonCodes?.[0] || "RULE_AUDIT_PASS_V1"}`,
+                by: "System",
+              },
+            ]);
+          }
+        })
+        .catch((err) => console.error(err));
+    }
+  }, []);
+
+  const handleToggle = (prevOn: boolean, consentId: string = "c-1") => {
+    const willBeOn = !prevOn;
+    setActiveCount((c) => (prevOn ? Math.max(0, c - 1) : c + 1));
+    fetch("/api/v1/consent", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        persona,
+        consentId,
+        status: willBeOn ? "AUTHORIZED" : "REVOKED",
+      }),
+    }).catch((err) => console.error(err));
+  };
 
   return (
     <div className="min-h-screen bg-canvas flex justify-center py-8 px-4">
@@ -96,21 +145,21 @@ export default function ConsentPage() {
               title="Transaction categorisation & spends"
               body="To compute your monthly surplus and prevent unexpected fees or late charges across accounts."
               defaultOn={true}
-              onToggle={(on) => handleToggle(!on)}
+              onToggle={(on) => handleToggle(!on, "c-1")}
             />
             <ConsentRow
               icon={<Banknote size={16} />}
               title="Income & salary regularity"
               body="To check stability before suggesting long-term investments like SIPs or recurring deposits."
               defaultOn={true}
-              onToggle={(on) => handleToggle(!on)}
+              onToggle={(on) => handleToggle(!on, "c-2")}
             />
             <ConsentRow
               icon={<ShieldHalf size={16} />}
               title="Active EMI & credit load"
               body="To safeguard your credit score and deliberately suppress debt offers when financial stress is detected."
               defaultOn={true}
-              onToggle={(on) => handleToggle(!on)}
+              onToggle={(on) => handleToggle(!on, "c-3")}
             />
           </div>
 
@@ -196,13 +245,13 @@ export default function ConsentPage() {
           {/* CTAs */}
           <div className="flex flex-col gap-2">
             <Link
-              href="/app"
+              href={`/app?persona=${persona}`}
               className="w-full h-12 rounded-lg bg-navy text-white text-[13.5px] font-bold flex items-center justify-center hover:bg-navy-rich transition-colors"
             >
               Allow personalisation (अनुमति दें)
             </Link>
             <Link
-              href="/app"
+              href={`/app?persona=${persona}`}
               className="w-full h-12 rounded-lg border border-line text-ink-muted text-[13px] font-medium flex items-center justify-center hover:bg-canvas transition-colors"
             >
               Skip personalisation &amp; continue

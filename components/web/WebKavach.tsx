@@ -11,17 +11,18 @@ import {
   AlertTriangle,
   History,
   Key,
-  Shield,
   Gavel,
   RefreshCw,
+  ShieldAlert,
 } from "lucide-react";
 import type { Lang } from "@/components/TopBar";
 
 interface WebKavachProps {
   lang: Lang;
+  activePersona?: "rahul" | "kamala";
 }
 
-export function WebKavach({ lang }: WebKavachProps) {
+export function WebKavach({ lang, activePersona = "rahul" }: WebKavachProps) {
   const [consents, setConsents] = useState([
     {
       id: "c-1",
@@ -51,7 +52,10 @@ export function WebKavach({ lang }: WebKavachProps) {
       active: true,
     },
   ]);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [confirmedEvents, setConfirmedEvents] = useState<Record<string, "RECOGNIZED" | "DISPUTED">>({});
   const [revokeAllDone, setRevokeAllDone] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const kv = {
     en: {
@@ -152,15 +156,22 @@ export function WebKavach({ lang }: WebKavachProps) {
   };
 
   useEffect(() => {
-    fetch("/api/v1/consent?persona=rahul")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.consents && data.consents.length > 0) {
-          setConsents(data.consents);
+    setLoading(true);
+    Promise.all([
+      fetch(`/api/v1/consent?persona=${activePersona}`).then((r) => r.json()),
+      fetch(`/api/v1/alerts?persona=${activePersona}`).then((r) => r.json()),
+    ])
+      .then(([consentData, alertData]) => {
+        if (consentData.consents && consentData.consents.length > 0) {
+          setConsents(consentData.consents);
+        }
+        if (alertData.alerts) {
+          setAlerts(alertData.alerts);
         }
       })
-      .catch((err) => console.error(err));
-  }, []);
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, [activePersona]);
 
   const toggleConsent = (id: string) => {
     const target = consents.find((c) => c.id === id);
@@ -173,7 +184,20 @@ export function WebKavach({ lang }: WebKavachProps) {
     fetch("/api/v1/consent", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ persona: "rahul", consentId: id, status: newStatus }),
+      body: JSON.stringify({ persona: activePersona, consentId: id, status: newStatus }),
+    }).catch((err) => console.error(err));
+  };
+
+  const handleConfirmFraud = (eventId: string, recognized: boolean) => {
+    setConfirmedEvents((prev) => ({
+      ...prev,
+      [eventId]: recognized ? "RECOGNIZED" : "DISPUTED",
+    }));
+
+    fetch(`/api/v1/fraud/${eventId}/confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ persona: activePersona, recognized }),
     }).catch((err) => console.error(err));
   };
 
@@ -217,6 +241,75 @@ export function WebKavach({ lang }: WebKavachProps) {
           </span>
         </div>
       </div>
+
+      {/* Kavach Anomaly Verification Alert Banner (Constitutional: Ask customer, never freeze account automatically) */}
+      {alerts.length > 0 && (
+        <div className="glass-card rounded-2xl p-6 border-2 border-amber/40 bg-amber-soft/30 flex flex-col gap-4 shadow-sm">
+          <div className="flex items-center justify-between pb-3 border-b border-amber/20">
+            <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-amber-700">
+              <ShieldAlert className="w-5 h-5 text-amber-600" />
+              <span>Kavach Anomaly Engine • Customer Verification Required</span>
+            </div>
+            <span className="text-[11px] font-bold bg-white px-3 py-1 rounded-full border border-amber/30 text-amber-800">
+              Constitutional Guarantee: Account Active (Never Auto-Frozen)
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {alerts.map((al: any) => {
+              const status = confirmedEvents[al.id];
+              return (
+                <div
+                  key={al.id}
+                  className="p-4 rounded-xl bg-white border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs"
+                >
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-ink">{al.title || "Unusual Transaction Flag"}</span>
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-vermilion-soft text-vermilion">
+                        {al.severity || "FLAGGED"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-ink-muted leading-relaxed">
+                      {al.message || "Unusual outflow pattern detected by rules and Isolation Forest. Please confirm if this was initiated by you."}
+                    </p>
+                    <span className="text-[11px] text-ink-faint">
+                      Alert ID: {al.id} • Rule: {al.ruleCode || "RULE_ANOMALY_DETECTION_V1"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {status === "RECOGNIZED" ? (
+                      <span className="text-xs font-bold text-emerald bg-emerald-soft px-3 py-2 rounded-xl flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4" /> Verified Recognized
+                      </span>
+                    ) : status === "DISPUTED" ? (
+                      <span className="text-xs font-bold text-vermilion bg-vermilion-soft px-3 py-2 rounded-xl flex items-center gap-1.5">
+                        <AlertTriangle className="w-4 h-4" /> Disputed & Shielded
+                      </span>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleConfirmFraud(al.id, true)}
+                          className="px-4 py-2 rounded-xl bg-emerald text-white hover:bg-emerald-deep text-xs font-bold shadow-sm transition-all"
+                        >
+                          Yes, I Recognize This
+                        </button>
+                        <button
+                          onClick={() => handleConfirmFraud(al.id, false)}
+                          className="px-4 py-2 rounded-xl bg-white hover:bg-vermilion-soft text-vermilion border border-line text-xs font-bold transition-all"
+                        >
+                          No, Report & Hold
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Main 12-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

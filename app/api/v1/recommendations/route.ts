@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
     candidates,
     items: candidates,
     candidateProduct: decision.candidateProduct,
+    reasons: nyay.reasonCodes,
     auditId: nyay.auditId,
   });
 }

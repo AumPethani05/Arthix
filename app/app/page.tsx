@@ -403,15 +403,15 @@ export default function WebAppPage() {
           {activeTab === "sahara" && (
             <WebSahara lang={lang} activePersona={activePersona} />
           )}
-          {activeTab === "vivek" && <WebVivek lang={lang} />}
+          {activeTab === "vivek" && <WebVivek lang={lang} activePersona={activePersona} />}
           {activeTab === "jeevanchakra" && (
-            <WebJeevanChakra lang={lang} onOpenNyay={() => setActiveTab("nyay")} />
+            <WebJeevanChakra lang={lang} activePersona={activePersona} onOpenNyay={() => setActiveTab("nyay")} />
           )}
           {activeTab === "bhashasahayak" && (
             <WebBhashaSahayak lang={lang} activePersona={activePersona} />
           )}
-          {activeTab === "consent" && <WebKavach lang={lang} />}
-          {activeTab === "nyay" && <WebNyay lang={lang} />}
+          {activeTab === "consent" && <WebKavach lang={lang} activePersona={activePersona} />}
+          {activeTab === "nyay" && <WebNyay lang={lang} activePersona={activePersona} />}
         </main>
       </div>
     </div>

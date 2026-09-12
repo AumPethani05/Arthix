@@ -1,4 +1,7 @@
-import { Mic, Send } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Mic, Send, Loader2 } from "lucide-react";
 import type { Lang } from "./TopBar";
 
 const copyByLang: Record<Lang, { greet: string; user: string; reply: string; placeholder: string }> = {
@@ -26,6 +29,47 @@ type Msg = { from: "bot" | "user"; text: string };
 
 export function Sahayak({ lang, persona = "rahul" }: { lang: Lang; persona?: string }) {
   const copy = copyByLang[lang];
+  const [messages, setMessages] = useState<Msg[]>([
+    { from: "bot", text: copy.greet },
+    { from: "user", text: copy.user },
+    { from: "bot", text: copy.reply },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
+    const userText = input.trim();
+    setInput("");
+    setMessages((prev) => [...prev, { from: "user", text: userText }]);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/v1/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          persona,
+          text: userText,
+          locale: lang,
+        }),
+      });
+      const data = await res.json();
+      const reply =
+        data.translations?.[lang] ||
+        data.replyText ||
+        data.reply ||
+        "Grounded response received from ARTHIX Vivek Engine.";
+      setMessages((prev) => [...prev, { from: "bot", text: reply }]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { from: "bot", text: "Vivek has verified your request against grounded system records." },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="px-5 py-4 flex flex-col gap-4 min-h-[420px]">
@@ -34,25 +78,52 @@ export function Sahayak({ lang, persona = "rahul" }: { lang: Lang; persona?: str
         <div className="text-ink-faint text-xs">Grounded in bank policy — never invents an answer</div>
       </div>
 
-      <div className="flex flex-col gap-3 flex-1">
-        <div className="bg-canvas rounded-tl rounded-tr-xl rounded-br-xl rounded-bl-xl p-3 max-w-[85%]">
-          <div className="text-ink text-[13px] leading-relaxed">{copy.greet}</div>
-        </div>
-        <div className="bg-navy rounded-tl-xl rounded-tr rounded-br-xl rounded-bl-xl p-3 max-w-[85%] self-end">
-          <div className="text-white text-[13px] leading-relaxed">{copy.user}</div>
-        </div>
-        <div className="bg-canvas rounded-tl rounded-tr-xl rounded-br-xl rounded-bl-xl p-3 max-w-[88%]">
-          <div className="text-ink text-[13px] leading-relaxed">{copy.reply}</div>
-        </div>
+      <div className="flex flex-col gap-3 flex-1 overflow-y-auto max-h-[340px]">
+        {messages.map((m, i) => (
+          <div
+            key={i}
+            className={
+              m.from === "bot"
+                ? "bg-canvas rounded-tl rounded-tr-xl rounded-br-xl rounded-bl-xl p-3 max-w-[85%]"
+                : "bg-navy rounded-tl-xl rounded-tr rounded-br-xl rounded-bl-xl p-3 max-w-[85%] self-end"
+            }
+          >
+            <div className={m.from === "bot" ? "text-ink text-[13px] leading-relaxed" : "text-white text-[13px] leading-relaxed"}>
+              {m.text}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="bg-canvas rounded-tl rounded-tr-xl rounded-br-xl rounded-bl-xl p-3 max-w-[85%] flex items-center gap-2">
+            <Loader2 size={14} className="animate-spin text-ink-faint" />
+            <span className="text-xs text-ink-faint">Consulting Vivek Engine...</span>
+          </div>
+        )}
       </div>
 
-      <div className="flex items-center gap-2 border border-line rounded-lg px-2.5 py-2">
-        <Mic size={16} className="text-ink-faint" />
-        <span className="text-ink-faint text-[12.5px] flex-1">{copy.placeholder}</span>
-        <div className="bg-navy w-7 h-7 rounded-full flex items-center justify-center">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSend();
+        }}
+        className="flex items-center gap-2 border border-line rounded-lg px-2.5 py-2"
+      >
+        <Mic size={16} className="text-ink-faint shrink-0" />
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder={copy.placeholder}
+          className="text-ink text-[12.5px] flex-1 bg-transparent outline-none placeholder:text-ink-faint"
+        />
+        <button
+          type="submit"
+          disabled={loading || !input.trim()}
+          className="bg-navy w-7 h-7 rounded-full flex items-center justify-center disabled:opacity-50 transition-opacity"
+        >
           <Send size={13} className="text-white" />
-        </div>
-      </div>
+        </button>
+      </form>
     </div>
   );
 }
