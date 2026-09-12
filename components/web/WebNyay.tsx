@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Scale,
   ShieldCheck,
@@ -16,6 +16,14 @@ interface WebNyayProps {
 export function WebNyay({ lang }: WebNyayProps) {
   const [downloading, setDownloading] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+  const [auditData, setAuditData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/v1/audit/me?persona=rahul")
+      .then((res) => res.json())
+      .then((data) => setAuditData(data))
+      .catch((err) => console.error(err));
+  }, []);
 
   const handleDownload = () => {
     setDownloading(true);

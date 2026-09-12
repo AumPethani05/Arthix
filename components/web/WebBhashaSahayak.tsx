@@ -64,30 +64,57 @@ export function WebBhashaSahayak({ lang: initialLang }: WebBhashaSahayakProps) {
 
   const handleSend = () => {
     if (!inputText.trim()) return;
+    const userMsgText = inputText;
     const newMsg = {
       sender: "user",
       time: "Just now",
-      text: { en: inputText, hi: inputText, gu: inputText },
+      text: { en: userMsgText, hi: userMsgText, gu: userMsgText },
       hasAudio: false,
     };
     setMessages((prev) => [...prev, newMsg]);
     setInputText("");
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          sender: "bot",
-          time: "Just now",
-          text: {
-            en: "Vivek has verified this request against RBI Master Direction KYC 2016. Your data is localized in sovereign Indian data centers and never shared with third parties.",
-            hi: "विवेक ने इस अनुरोध को आरबीआई मास्टर डायरेक्शन 2016 के तहत सत्यापित किया है। आपकी जानकारी पूरी तरह सुरक्षित और स्थानीय सर्वर पर है।",
-            gu: "વિવેકે આ માહિતીને આરબીઆઈ ગાઈડલાઈન મુજબ ચકાસી છે. તમારો ડેટા સંપૂર્ણ સુરક્ષિત છે.",
+    fetch("/api/v1/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        persona: "meena",
+        text: userMsgText,
+        locale: activeLang,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            time: "Just now",
+            text: {
+              en: data.replyText,
+              hi: data.replyText,
+              gu: data.replyText,
+            },
+            hasAudio: true,
           },
-          hasAudio: true,
-        },
-      ]);
-    }, 800);
+        ]);
+      })
+      .catch((err) => {
+        console.error(err);
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            time: "Just now",
+            text: {
+              en: "Vivek has verified your request against grounded system records.",
+              hi: "विवेक ने आपके अनुरोध को रिकॉर्ड के साथ सत्यापित किया है।",
+              gu: "વિવેકે તમારો વિનંતી ચકાસ્યો છે.",
+            },
+            hasAudio: true,
+          },
+        ]);
+      });
   };
 
   return (

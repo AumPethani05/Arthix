@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ShieldCheck,
   Lock,
@@ -24,7 +24,7 @@ interface WebKavachProps {
 export function WebKavach({ lang }: WebKavachProps) {
   const [consents, setConsents] = useState([
     {
-      id: "sbi-tx",
+      id: "c-1",
       institution: "State Bank of India",
       purpose: "Cashflow & Runway Analysis",
       type: "Bank Statement Read",
@@ -33,7 +33,7 @@ export function WebKavach({ lang }: WebKavachProps) {
       active: true,
     },
     {
-      id: "digilocker",
+      id: "c-2",
       institution: "DigiLocker / UIDAI",
       purpose: "Aadhaar Identity Verification (KYC)",
       type: "One-Time Document Pull",
@@ -42,7 +42,7 @@ export function WebKavach({ lang }: WebKavachProps) {
       active: true,
     },
     {
-      id: "treds",
+      id: "c-4",
       institution: "TReDS Handloom Clearing",
       purpose: "Trade Invoice Settlement Tracking",
       type: "Invoice State Read",
@@ -52,10 +52,30 @@ export function WebKavach({ lang }: WebKavachProps) {
     },
   ]);
 
+  useEffect(() => {
+    fetch("/api/v1/consent?persona=rahul")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.consents && data.consents.length > 0) {
+          setConsents(data.consents);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
   const toggleConsent = (id: string) => {
+    const target = consents.find((c) => c.id === id);
+    const newStatus = target && target.active ? "REVOKED" : "AUTHORIZED";
+
     setConsents((prev) =>
       prev.map((c) => (c.id === id ? { ...c, active: !c.active } : c))
     );
+
+    fetch("/api/v1/consent", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ persona: "rahul", consentId: id, status: newStatus }),
+    }).catch((err) => console.error(err));
   };
 
   const activeCount = consents.filter((c) => c.active).length;

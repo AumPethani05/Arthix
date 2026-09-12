@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   HeartHandshake,
@@ -27,6 +25,33 @@ export function WebSahara({ lang, activePersona }: WebSaharaProps) {
   const [applied, setApplied] = useState(false);
   const [callbackRequested, setCallbackRequested] = useState(false);
   const [dueDateShifted, setDueDateShifted] = useState(false);
+  const [wellnessData, setWellnessData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch(`/api/v1/wellness?persona=${activePersona}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setWellnessData(data);
+        if (data.reliefActions && data.reliefActions[0]?.status === "MORATORIUM_ACTIVE") {
+          setApplied(true);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, [activePersona]);
+
+  const handleApplyRelief = () => {
+    fetch("/api/v1/wellness/relief", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ persona: activePersona, actionId: "action-moratorium-60d" }),
+    })
+      .then((res) => res.json())
+      .then(() => {
+        setApplied(true);
+        setModalOpen(false);
+      })
+      .catch((err) => console.error(err));
+  };
 
   const t = {
   en: {

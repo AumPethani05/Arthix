@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   TrendingUp,
   ShieldCheck,
@@ -29,6 +29,20 @@ interface WebDashboardProps {
 
 export function WebDashboard({ lang, onNavigateTab, onSelectPersona, activePersona }: WebDashboardProps) {
   const [showBalance, setShowBalance] = useState(true);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [decisionData, setDecisionData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch(`/api/v1/me/profile?persona=${activePersona}`)
+      .then((res) => res.json())
+      .then((data) => setProfileData(data))
+      .catch((err) => console.error(err));
+
+    fetch(`/api/v1/recommendations?persona=${activePersona}`)
+      .then((res) => res.json())
+      .then((data) => setDecisionData(data))
+      .catch((err) => console.error(err));
+  }, [activePersona]);
 
   // Content localized based on lang
   const t = {

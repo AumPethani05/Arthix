@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Sparkles,
   ShieldCheck,
@@ -36,7 +36,17 @@ const t = {
     },
   },
 };
+
+export function WebVivek({ lang }: WebVivekProps) {
   const [activeState, setActiveState] = useState<DecisionState>("approved");
+  const [liveDecision, setLiveDecision] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/v1/recommendations?persona=rahul")
+      .then((res) => res.json())
+      .then((data) => setLiveDecision(data))
+      .catch((err) => console.error(err));
+  }, []);
 
   const stateData = {
     approved: {
